@@ -27,22 +27,36 @@ function goTo(n) {
 }
 setInterval(() => goTo((cur + 1) % IMAGES.length), 4500);
 
-// Scroll — fade out hero, keep it opaque until scroll starts
+// Navbar + scroll
+const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
+  // Sticky nav glass effect
+  if (window.scrollY > 30) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+
+  // Hero parallax fade
   const heroH = document.getElementById('hero').offsetHeight;
   const progress = Math.min(window.scrollY / (heroH * 0.55), 1);
   slides.forEach(s => { s.style.opacity = s.classList.contains('active') ? (1 - progress) : 0; });
   document.getElementById('hero-overlay').style.opacity = 1 - progress * 0.5;
   document.getElementById('hero-content').style.opacity = Math.max(0, 1 - progress * 2.5);
+
   checkVisible();
 });
 
 function checkVisible() {
-  [document.getElementById('divider'), document.getElementById('what-is'),
-   ...document.querySelectorAll('.fcard'), document.getElementById('platforms'),
-   document.getElementById('rules')]
-  .forEach(el => {
-    if (el && el.getBoundingClientRect().top < window.innerHeight * 0.9)
+  const threshold = window.innerHeight * 0.9;
+  const els = [
+    document.getElementById('info-text'),
+    document.getElementById('sc1'),
+    document.getElementById('sc2'),
+    document.getElementById('sc3'),
+    ...document.querySelectorAll('.fcard'),
+    document.getElementById('join-cards'),
+    document.getElementById('rules-box'),
+  ];
+  els.forEach(el => {
+    if (el && el.getBoundingClientRect().top < threshold)
       el.classList.add('visible');
   });
 }
@@ -82,3 +96,4 @@ async function fetchStatus() {
 }
 fetchStatus();
 setInterval(fetchStatus, 30000);
+
