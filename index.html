@@ -178,10 +178,10 @@
     background: var(--safe);
     box-shadow: 0 0 8px var(--safe), 0 0 20px rgba(34,197,94,0.35);
     flex-shrink: 0;
-    animation: pulse 2.5s ease-in-out infinite;
+    animation: statusPulse 2.5s ease-in-out infinite;
   }
   .status-dot.offline { background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: none; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.22} }
+  @keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:0.22} }
   #player-text { color: rgba(255,255,255,0.6); }
 
   /* ─── JOIN BOX ─── */
