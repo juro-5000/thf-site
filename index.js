@@ -39,7 +39,8 @@ window.addEventListener('scroll', () => {
 
 function checkVisible() {
   [document.getElementById('divider'), document.getElementById('what-is'),
-   ...document.querySelectorAll('.fcard'), document.getElementById('platforms')]
+   ...document.querySelectorAll('.fcard'), document.getElementById('platforms'),
+   document.getElementById('rules')]
   .forEach(el => {
     if (el && el.getBoundingClientRect().top < window.innerHeight * 0.9)
       el.classList.add('visible');

@@ -144,6 +144,39 @@
   .ptag.java    { border-color:rgba(234,179,8,0.3);  color:rgba(251,191,36,0.65); }
   .ptag.bedrock { border-color:rgba(139,92,246,0.3); color:rgba(192,132,252,0.65); }
 
+  .social-links {
+    display:flex; gap:clamp(0.6rem,1.8vw,1.2rem); margin-top:clamp(1rem,2.2vw,1.8rem);
+    justify-content:center; flex-wrap:wrap;
+    animation:fadeUp 1s ease 0.58s both;
+  }
+  .social-btn {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:clamp(140px,18vw,190px);
+    padding:clamp(0.55rem,1.3vw,0.85rem) clamp(0.9rem,2vw,1.4rem);
+    text-decoration:none;
+    font-family:'Share Tech Mono',monospace;
+    font-size:clamp(0.5rem,1vw,0.65rem); letter-spacing:3px; text-transform:uppercase;
+    border:1px solid rgba(192,132,252,0.35);
+    color:#d8b4fe;
+    background:linear-gradient(180deg, rgba(139,92,246,0.22), rgba(14,12,26,0.88));
+    box-shadow:0 10px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+    transition:transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .social-btn:hover {
+    transform:translateY(-2px);
+    border-color:rgba(216,180,254,0.7);
+    box-shadow:0 15px 36px rgba(88,28,220,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .social-btn.youtube {
+    border-color:rgba(248,113,113,0.45);
+    color:#fecaca;
+    background:linear-gradient(180deg, rgba(220,38,38,0.2), rgba(24,8,12,0.88));
+  }
+  .social-btn.youtube:hover {
+    border-color:rgba(252,165,165,0.8);
+    box-shadow:0 15px 36px rgba(220,38,38,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+
   .scroll-hint {
     position:absolute; bottom:clamp(1rem,2.5vw,2.5rem); left:50%; transform:translateX(-50%);
     z-index:4;
@@ -266,6 +299,43 @@
   }
   .fcard p strong { color:rgba(192,132,252,0.85); font-weight:700; }
 
+  .rules {
+    margin-top:4rem;
+    border:1px solid rgba(124,58,237,0.16);
+    background:linear-gradient(180deg, rgba(18,15,38,0.92), rgba(10,11,24,0.98));
+    box-shadow:0 24px 64px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+    padding:clamp(1.4rem,3vw,2.4rem) clamp(1.2rem,2.8vw,2.6rem);
+    opacity:0; transform:translateY(30px);
+    transition:opacity 0.7s ease,transform 0.7s ease;
+  }
+  .rules.visible { opacity:1; transform:translateY(0); }
+  .rules-top {
+    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:flex-end;
+    margin-bottom:1.1rem;
+  }
+  .rules-title {
+    font-family:'VT323',monospace; letter-spacing:2px;
+    font-size:clamp(2rem,4.2vw,3rem); color:#fff;
+    text-shadow:0 0 26px rgba(192,132,252,0.35);
+  }
+  .rules-sub {
+    font-family:'Share Tech Mono',monospace;
+    font-size:clamp(0.5rem,1vw,0.62rem); letter-spacing:4px; text-transform:uppercase;
+    color:rgba(192,132,252,0.7);
+  }
+  .rule-list {
+    list-style:none; display:grid; gap:0.75rem;
+  }
+  .rule-list li {
+    border:1px solid rgba(124,58,237,0.2);
+    background:rgba(8,10,22,0.72);
+    padding:0.9rem 1rem;
+    color:rgba(222,224,255,0.86);
+    font-size:clamp(0.9rem,1.5vw,1rem);
+    line-height:1.7;
+  }
+  .rule-list li strong { color:#fda4af; }
+
   /* Platforms */
   .platforms {
     display:grid; grid-template-columns:1fr 1fr;
@@ -349,6 +419,10 @@
       <span class="ptag java">Java 1.21.1+</span>
       <span class="ptag bedrock">Bedrock</span>
     </div>
+    <div class="social-links">
+      <a class="social-btn" href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener noreferrer">Discord</a>
+      <a class="social-btn youtube" href="https://www.youtube.com/@THFPROJECT" target="_blank" rel="noopener noreferrer">YouTube @THFPROJECT</a>
+    </div>
   </div>
 
   <div class="nav-dots" id="nav-dots"></div>
@@ -404,6 +478,19 @@
         </div>
       </div>
       <div class="cross-note">Full cross-play enabled — Java &amp; Bedrock together</div>
+    </div>
+
+    <div class="rules" id="rules">
+      <div class="rules-top">
+        <div>
+          <div class="rules-sub">// Server Rules</div>
+          <h3 class="rules-title">Semi-Anarchy</h3>
+        </div>
+      </div>
+      <ul class="rule-list">
+        <li><strong>Only rule: no cheating.</strong> No hacked clients, x-ray, fly, speed, auto-clickers, exploits, or dupes.</li>
+        <li>Everything else is allowed: PvP, raiding, griefing, and wild void survival chaos.</li>
+      </ul>
     </div>
   </div>
 </section>
