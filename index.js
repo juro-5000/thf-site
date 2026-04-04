@@ -1,12 +1,12 @@
 /**
  * thfProject — Main site controller
  *
- * Modules:
- *  - CONFIG          : Centralised constants (no magic numbers/strings)
- *  - Carousel        : Hero image slideshow with keyboard & dot navigation
- *  - ScrollManager   : Throttled scroll handler (navbar, parallax, reveal)
- *  - Toast           : Copy-to-clipboard feedback overlay
- *  - StatusChecker   : Periodic Minecraft server status polling
+ * Architecture: Class-based ES6+
+ *  - ThfApp        : Application bootstrap and event delegation
+ *  - Carousel      : Hero image slideshow with keyboard & dot navigation
+ *  - ScrollManager : Throttled scroll handler (navbar, parallax, reveal)
+ *  - Toast         : Copy-to-clipboard feedback overlay
+ *  - StatusChecker : Periodic Minecraft server status polling
  */
 
 'use strict';
@@ -119,95 +119,96 @@ function throttle(fn, limitMs) {
  * Hero image carousel with auto-advance, dot navigation and
  * keyboard left/right arrow support.
  */
-const Carousel = (() => {
-  const { images, interval } = CONFIG.carousel;
-  const { hero: heroSel, navDots: dotsSel } = CONFIG.selectors;
+class Carousel {
+  /** @type {string[]} */ #images;
+  /** @type {number} */   #interval;
+  /** @type {Element|null} */ #heroEl;
+  /** @type {Element|null} */ #dotsWrap;
+  /** @type {HTMLElement[]} */ #slides = [];
+  /** @type {HTMLElement[]} */ #dotEls = [];
+  /** @type {number} */ #current = 0;
+  /** @type {number|null} */ #timer = null;
 
-  /** @type {HTMLElement|null} */
-  const heroEl = qs(heroSel);
-  /** @type {HTMLElement|null} */
-  const dotsWrap = qs(dotsSel);
-
-  /** @type {HTMLElement[]} */
-  let slides = [];
-  /** @type {HTMLElement[]} */
-  let dotEls = [];
-  /** @type {number} */
-  let current = 0;
-  /** @type {number|null} */
-  let timer = null;
+  constructor() {
+    this.#images   = CONFIG.carousel.images;
+    this.#interval = CONFIG.carousel.interval;
+    this.#heroEl   = qs(CONFIG.selectors.hero);
+    this.#dotsWrap = qs(CONFIG.selectors.navDots);
+  }
 
   /**
    * Navigate to a specific slide index.
    * @param {number} index - Target slide index
    */
-  function goTo(index) {
-    if (!slides.length) return;
-    slides[current].classList.remove('active');
-    dotEls[current].classList.remove('active');
-    dotEls[current].setAttribute('aria-selected', 'false');
-    current = ((index % slides.length) + slides.length) % slides.length;
-    slides[current].classList.add('active');
-    dotEls[current].classList.add('active');
-    dotEls[current].setAttribute('aria-selected', 'true');
+  goTo(index) {
+    if (!this.#slides.length) return;
+    this.#slides[this.#current].classList.remove('active');
+    this.#dotEls[this.#current].classList.remove('active');
+    this.#dotEls[this.#current].setAttribute('aria-selected', 'false');
+    this.#current = ((index % this.#slides.length) + this.#slides.length) % this.#slides.length;
+    this.#slides[this.#current].classList.add('active');
+    this.#dotEls[this.#current].classList.add('active');
+    this.#dotEls[this.#current].setAttribute('aria-selected', 'true');
   }
 
   /** Advance to the next slide. */
-  function next() {
-    goTo(current + 1);
+  #next() {
+    this.goTo(this.#current + 1);
   }
 
   /** Start the auto-advance timer. */
-  function startTimer() {
-    timer = setInterval(next, interval);
+  #startTimer() {
+    this.#timer = setInterval(() => this.#next(), this.#interval);
   }
 
-  /**
-   * Build slide and dot elements, then start the timer.
-   */
-  function init() {
-    if (!heroEl || !dotsWrap) return;
+  /** @returns {HTMLElement[]} Current slide elements */
+  getSlides() { return this.#slides; }
 
-    slides = images.map((src, i) => {
+  /** @returns {number} Index of the currently active slide */
+  getCurrent() { return this.#current; }
+
+  /** Build slide and dot elements, attach keyboard listener, then start the timer. */
+  init() {
+    if (!this.#heroEl || !this.#dotsWrap) return;
+
+    this.#slides = this.#images.map((src, i) => {
       const div = document.createElement('div');
       div.className = `slide${i === 0 ? ' active' : ''}`;
       div.style.backgroundImage = `url(${src})`;
-      heroEl.insertBefore(div, heroEl.firstChild);
+      this.#heroEl.insertBefore(div, this.#heroEl.firstChild);
       return div;
     });
 
-    dotEls = images.map((_, i) => {
+    this.#dotEls = this.#images.map((_, i) => {
       const dot = document.createElement('div');
       dot.className = `ndot${i === 0 ? ' active' : ''}`;
-      dot.setAttribute('role', 'button');
+      dot.setAttribute('role', 'tab');
       dot.setAttribute('tabindex', '0');
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
       dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-      dot.addEventListener('click', () => goTo(i));
+      dot.addEventListener('click', () => this.goTo(i));
       dot.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          goTo(i);
+          this.goTo(i);
         }
       });
-      dotsWrap.appendChild(dot);
+      this.#dotsWrap.appendChild(dot);
       return dot;
     });
 
     document.addEventListener('keydown', (e) => {
       // Only handle arrow keys when no interactive element has focus,
       // to avoid conflicting with form inputs, textareas, etc.
-      const tag = document.activeElement && document.activeElement.tagName;
+      const tag = document.activeElement?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (e.key === 'ArrowLeft') goTo(current - 1);
-      else if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft')       this.goTo(this.#current - 1);
+      else if (e.key === 'ArrowRight') this.#next();
     });
 
-    startTimer();
+    this.#startTimer();
   }
-
-  return { init, goTo, getSlides: () => slides, getCurrent: () => current };
-})();
+}
 
 /* ─────────────────────────────────────────────
    SCROLL MANAGER
@@ -219,53 +220,50 @@ const Carousel = (() => {
  *  - Hero parallax / fade-out
  *  - Reveal animations for sections entering the viewport
  */
-const ScrollManager = (() => {
-  const {
-    navbarThreshold,
-    parallaxFadeFraction,
-    overlayFadeFactor,
-    contentFadeFactor,
-    revealThreshold,
-    throttleMs,
-  } = CONFIG.scroll;
-  const { navbar: navbarSel, heroOverlay: overlaySel, heroContent: contentSel, revealEls } = CONFIG.selectors;
+class ScrollManager {
+  /** @type {Element|null} */ #navbar;
+  /** @type {Element|null} */ #heroOverlay;
+  /** @type {Element|null} */ #heroContent;
 
-  const navbar      = qs(navbarSel);
-  const heroOverlay = qs(overlaySel);
-  const heroContent = qs(contentSel);
+  constructor() {
+    this.#navbar      = qs(CONFIG.selectors.navbar);
+    this.#heroOverlay = qs(CONFIG.selectors.heroOverlay);
+    this.#heroContent = qs(CONFIG.selectors.heroContent);
+  }
 
-  /**
-   * Toggle the glass-effect class on the navbar.
-   */
-  function updateNavbar() {
-    if (!navbar) return;
-    navbar.classList.toggle('scrolled', window.scrollY > navbarThreshold);
+  /** Toggle the glass-effect class on the navbar. */
+  #updateNavbar() {
+    if (!this.#navbar) return;
+    this.#navbar.classList.toggle('scrolled', window.scrollY > CONFIG.scroll.navbarThreshold);
   }
 
   /**
    * Apply parallax fade to the active hero slide, overlay, and content.
    * @param {HTMLElement[]} slides - Array of slide elements
-   * @param {HTMLElement} heroEl   - Hero section element
+   * @param {Element|null} heroEl  - Hero section element
    */
-  function updateParallax(slides, heroEl) {
+  #updateParallax(slides, heroEl) {
     if (!heroEl) return;
+    const { parallaxFadeFraction, overlayFadeFactor, contentFadeFactor } = CONFIG.scroll;
     const progress = Math.min(window.scrollY / (heroEl.offsetHeight * parallaxFadeFraction), 1);
 
     slides.forEach((s) => {
       s.style.opacity = s.classList.contains('active') ? String(1 - progress) : '0';
     });
 
-    if (heroOverlay) heroOverlay.style.opacity = String(1 - progress * overlayFadeFactor);
-    if (heroContent) heroContent.style.opacity = String(Math.max(0, 1 - progress * contentFadeFactor));
+    if (this.#heroOverlay) {
+      this.#heroOverlay.style.opacity = String(1 - progress * overlayFadeFactor);
+    }
+    if (this.#heroContent) {
+      this.#heroContent.style.opacity = String(Math.max(0, 1 - progress * contentFadeFactor));
+    }
   }
 
-  /**
-   * Add the "visible" class to any tracked elements that have entered the viewport.
-   */
-  function checkVisible() {
-    const threshold = window.innerHeight * revealThreshold;
+  /** Add the "visible" class to any tracked elements that have entered the viewport. */
+  checkVisible() {
+    const threshold = window.innerHeight * CONFIG.scroll.revealThreshold;
 
-    revealEls.forEach((selector) => {
+    CONFIG.selectors.revealEls.forEach((selector) => {
       try {
         document.querySelectorAll(selector).forEach((el) => {
           if (el.getBoundingClientRect().top < threshold) {
@@ -280,74 +278,84 @@ const ScrollManager = (() => {
 
   /**
    * Attach the (throttled) scroll listener and run an initial check.
+   * @param {Carousel} carousel - Carousel instance to read slides from
    */
-  function init() {
+  init(carousel) {
     const heroEl = qs(CONFIG.selectors.hero);
-    const slides = Carousel.getSlides();
+    const slides = carousel.getSlides();
 
     const onScroll = throttle(() => {
-      updateNavbar();
-      updateParallax(slides, heroEl);
-      checkVisible();
-    }, throttleMs);
+      this.#updateNavbar();
+      this.#updateParallax(slides, heroEl);
+      this.checkVisible();
+    }, CONFIG.scroll.throttleMs);
 
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // Run once on load so elements already in view animate immediately.
-    updateNavbar();
-    updateParallax(slides, heroEl);
-    checkVisible();
+    this.#updateNavbar();
+    this.#updateParallax(slides, heroEl);
+    this.checkVisible();
   }
-
-  return { init, checkVisible };
-})();
+}
 
 /* ─────────────────────────────────────────────
    TOAST
 ───────────────────────────────────────────── */
 
-/**
- * Lightweight copy-feedback toast notification.
- */
-const Toast = (() => {
-  const { displayMs, defaultMessage } = CONFIG.toast;
-  const toastEl = qs(CONFIG.selectors.copyToast);
-  /** @type {ReturnType<typeof setTimeout>|null} */
-  let timer = null;
+/** Lightweight copy-feedback toast notification. */
+class Toast {
+  /** @type {Element|null} */                     #toastEl;
+  /** @type {number} */                           #displayMs;
+  /** @type {string} */                           #defaultMessage;
+  /** @type {ReturnType<typeof setTimeout>|null} */ #timer = null;
+
+  constructor() {
+    this.#displayMs      = CONFIG.toast.displayMs;
+    this.#defaultMessage = CONFIG.toast.defaultMessage;
+    this.#toastEl        = qs(CONFIG.selectors.copyToast);
+  }
 
   /**
    * Show the toast with the given message.
    * @param {string} [message] - Text to display (defaults to CONFIG value)
    */
-  function show(message = defaultMessage) {
-    if (!toastEl) return;
-    toastEl.textContent = message;
-    toastEl.classList.add('show');
-    if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => toastEl.classList.remove('show'), displayMs);
+  show(message = this.#defaultMessage) {
+    if (!this.#toastEl) return;
+    this.#toastEl.textContent = message;
+    this.#toastEl.classList.add('show');
+    if (this.#timer !== null) clearTimeout(this.#timer);
+    this.#timer = setTimeout(() => this.#toastEl.classList.remove('show'), this.#displayMs);
   }
-
-  return { show };
-})();
+}
 
 /* ─────────────────────────────────────────────
    STATUS CHECKER
 ───────────────────────────────────────────── */
 
-/**
- * Polls the Minecraft server status API and updates the UI.
- */
-const StatusChecker = (() => {
-  const { host, apiUrl, pollInterval } = CONFIG.status;
-  const statusDot  = qs(CONFIG.selectors.statusDot);
-  const playerText = qs(CONFIG.selectors.playerText);
+/** Polls the Minecraft server status API and updates the UI. */
+class StatusChecker {
+  /** @type {string} */      #host;
+  /** @type {string} */      #apiUrl;
+  /** @type {number} */      #pollInterval;
+  /** @type {Element|null} */ #statusDot;
+  /** @type {Element|null} */ #playerText;
+
+  constructor() {
+    const { host, apiUrl, pollInterval } = CONFIG.status;
+    this.#host         = host;
+    this.#apiUrl       = apiUrl;
+    this.#pollInterval = pollInterval;
+    this.#statusDot    = qs(CONFIG.selectors.statusDot);
+    this.#playerText   = qs(CONFIG.selectors.playerText);
+  }
 
   /**
    * Format player count as a human-readable string.
    * @param {number} n - Number of online players
    * @returns {string}
    */
-  function formatPlayerCount(n) {
+  #formatPlayerCount(n) {
     return n === 1 ? '1 player online' : `${n} players online`;
   }
 
@@ -356,12 +364,12 @@ const StatusChecker = (() => {
    * @param {boolean} online  - Whether the server is reachable
    * @param {number}  [count] - Player count when online
    */
-  function updateUI(online, count = 0) {
-    if (statusDot) {
-      statusDot.className = online ? 'status-dot' : 'status-dot offline';
+  #updateUI(online, count = 0) {
+    if (this.#statusDot) {
+      this.#statusDot.className = online ? 'status-dot' : 'status-dot offline';
     }
-    if (playerText) {
-      playerText.textContent = online ? formatPlayerCount(count) : 'Server offline';
+    if (this.#playerText) {
+      this.#playerText.textContent = online ? this.#formatPlayerCount(count) : 'Server offline';
     }
   }
 
@@ -369,58 +377,88 @@ const StatusChecker = (() => {
    * Fetch current server status from the API and update the UI.
    * @returns {Promise<void>}
    */
-  async function fetch() {
+  async #fetch() {
     try {
-      const response = await window.fetch(`${apiUrl}${host}`);
+      const response = await window.fetch(`${this.#apiUrl}${this.#host}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      updateUI(data.online === true, data.players?.online ?? 0);
+      this.#updateUI(data.online === true, data.players?.online ?? 0);
     } catch (err) {
       console.warn('[thf] Could not reach status API:', err);
-      if (statusDot)  statusDot.className    = 'status-dot offline';
-      if (playerText) playerText.textContent = 'Could not reach server';
+      if (this.#statusDot)  this.#statusDot.className    = 'status-dot offline';
+      if (this.#playerText) this.#playerText.textContent = 'Could not reach server';
     }
   }
 
-  /**
-   * Run an initial status check and schedule periodic polling.
-   */
-  function init() {
-    fetch();
-    setInterval(fetch, pollInterval);
+  /** Run an initial status check and schedule periodic polling. */
+  init() {
+    this.#fetch();
+    setInterval(() => this.#fetch(), this.#pollInterval);
   }
-
-  return { init };
-})();
+}
 
 /* ─────────────────────────────────────────────
-   PUBLIC API
-   copyText is called directly from HTML onclick
-   attributes, so it must remain globally accessible.
+   APP BOOTSTRAP
 ───────────────────────────────────────────── */
 
 /**
- * Copy text to the clipboard and show a toast notification.
- * Exposed globally for use in inline HTML onclick handlers.
- * @param {string} text  - Text to copy
- * @param {string} [label] - Optional toast message
- * @returns {void}
+ * Main application class — wires up all modules and handles
+ * global event delegation (copy-to-clipboard).
  */
-function copyText(text, label) {
-  navigator.clipboard.writeText(text).then(
-    () => Toast.show(label),
-    (err) => {
-      console.warn('[thf] Clipboard write failed:', err);
-      Toast.show('Copy failed — please try again');
-    },
-  );
+class ThfApp {
+  /** @type {Carousel} */       #carousel;
+  /** @type {ScrollManager} */  #scrollManager;
+  /** @type {Toast} */          #toast;
+  /** @type {StatusChecker} */  #statusChecker;
+
+  constructor() {
+    this.#carousel      = new Carousel();
+    this.#scrollManager = new ScrollManager();
+    this.#toast         = new Toast();
+    this.#statusChecker = new StatusChecker();
+  }
+
+  /**
+   * Copy text to the clipboard and show a toast notification.
+   * @param {string} text    - Text to copy
+   * @param {string} [label] - Optional toast message
+   */
+  #copyText(text, label) {
+    navigator.clipboard.writeText(text).then(
+      () => this.#toast.show(label),
+      (err) => {
+        console.warn('[thf] Clipboard write failed:', err);
+        this.#toast.show('Copy failed — please try again');
+      },
+    );
+  }
+
+  /**
+   * Attach delegated click handler for all [data-copy-text] elements.
+   * Replaces the previous global copyText() function.
+   */
+  #bindCopyDelegation() {
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-copy-text]');
+      if (!target) return;
+      const text  = target.dataset.copyText;
+      const label = target.dataset.copyLabel;
+      this.#copyText(text, label);
+    });
+  }
+
+  /** Initialise all modules. */
+  init() {
+    this.#carousel.init();
+    this.#scrollManager.init(this.#carousel);
+    this.#statusChecker.init();
+    this.#bindCopyDelegation();
+  }
 }
 
 /* ─────────────────────────────────────────────
    BOOT
 ───────────────────────────────────────────── */
 
-Carousel.init();
-ScrollManager.init();
-StatusChecker.init();
-
+const app = new ThfApp();
+app.init();
