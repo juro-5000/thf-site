@@ -195,6 +195,10 @@ const Carousel = (() => {
     });
 
     document.addEventListener('keydown', (e) => {
+      // Only handle arrow keys when no interactive element has focus,
+      // to avoid conflicting with form inputs, textareas, etc.
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.key === 'ArrowLeft') goTo(current - 1);
       else if (e.key === 'ArrowRight') next();
     });
@@ -308,7 +312,7 @@ const ScrollManager = (() => {
 const Toast = (() => {
   const { displayMs, defaultMessage } = CONFIG.toast;
   const toastEl = qs(CONFIG.selectors.copyToast);
-  /** @type {number|null} */
+  /** @type {ReturnType<typeof setTimeout>|null} */
   let timer = null;
 
   /**
@@ -319,7 +323,7 @@ const Toast = (() => {
     if (!toastEl) return;
     toastEl.textContent = message;
     toastEl.classList.add('show');
-    clearTimeout(timer);
+    if (timer !== null) clearTimeout(timer);
     timer = setTimeout(() => toastEl.classList.remove('show'), displayMs);
   }
 
@@ -405,7 +409,10 @@ const StatusChecker = (() => {
 function copyText(text, label) {
   navigator.clipboard.writeText(text).then(
     () => Toast.show(label),
-    (err) => console.warn('[thf] Clipboard write failed:', err),
+    (err) => {
+      console.warn('[thf] Clipboard write failed:', err);
+      Toast.show('Copy failed — please try again');
+    },
   );
 }
 
