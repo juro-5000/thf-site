@@ -165,8 +165,6 @@ nav.scrolled {
 .slide {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
   opacity: 0;
   transform: scale(1.04);
   transition: opacity 1.7s ease, transform 5s ease;
@@ -174,6 +172,13 @@ nav.scrolled {
 .slide.active {
   opacity: 1;
   transform: scale(1);
+}
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 #hero-overlay {
@@ -438,36 +443,7 @@ nav.scrolled {
   gap: 0.45rem;
   animation: fadeUp 0.7s ease 0.8s both;
 }
-.scroll-arrow {
-  width: 2px;
-  height: clamp(20px, 3vw, 32px);
-  border-radius: 999px;
-  background: linear-gradient(to bottom, rgba(147, 197, 253, 0.9), transparent);
-  animation: arrowPulse 2s ease-in-out infinite;
-}
-@keyframes arrowPulse { 0%,100%{opacity:0.35} 50%{opacity:1} }
 
-.nav-dots {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: clamp(3.45rem, 6vw, 5.6rem);
-  z-index: 4;
-  display: flex;
-  gap: 8px;
-}
-.ndot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(191, 219, 254, 0.34);
-  transition: transform 0.2s ease, background 0.2s ease;
-  cursor: pointer;
-}
-.ndot.active {
-  background: #fff;
-  transform: scale(1.35);
-}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(18px); }
@@ -905,7 +881,7 @@ footer {
 
 @media (max-width: 480px) {
   .logo { letter-spacing: 0.01em; }
-  .scroll-hint, .nav-dots { display: none; }
+  .scroll-hint { display: none; }
   section:not(#hero) { padding-left: 0.9rem; padding-right: 0.9rem; }
 }
 
@@ -982,10 +958,8 @@ footer {
     </div>
   </div>
 
-  <div class="nav-dots" id="nav-dots" role="tablist" aria-label="Carousel navigation"></div>
   <div class="scroll-hint" aria-hidden="true">
     <span>scroll</span>
-    <div class="scroll-arrow"></div>
   </div>
 </section>
 
@@ -1175,7 +1149,6 @@ const CONFIG = {
     hero:        '#hero',
     heroOverlay: '#hero-overlay',
     heroContent: '#hero-content',
-    navDots:     '#nav-dots',
     copyToast:   '#copy-toast',
     statusDot:   '#status-dot',
     playerText:  '#player-text',
@@ -1229,16 +1202,14 @@ function throttle(fn, limitMs) {
 ───────────────────────────────────────────── */
 
 /**
- * Hero image carousel with auto-advance, dot navigation and
+ * Hero image carousel with auto-advance and
  * keyboard left/right arrow support.
  */
 class Carousel {
   /** @type {string[]} */ #images;
   /** @type {number} */   #interval;
   /** @type {Element|null} */ #heroEl;
-  /** @type {Element|null} */ #dotsWrap;
   /** @type {HTMLElement[]} */ #slides = [];
-  /** @type {HTMLElement[]} */ #dotEls = [];
   /** @type {number} */ #current = 0;
   /** @type {number|null} */ #timer = null;
 
@@ -1246,7 +1217,6 @@ class Carousel {
     this.#images   = CONFIG.carousel.images;
     this.#interval = CONFIG.carousel.interval;
     this.#heroEl   = qs(CONFIG.selectors.hero);
-    this.#dotsWrap = qs(CONFIG.selectors.navDots);
   }
 
   /**
@@ -1256,12 +1226,8 @@ class Carousel {
   goTo(index) {
     if (!this.#slides.length) return;
     this.#slides[this.#current].classList.remove('active');
-    this.#dotEls[this.#current].classList.remove('active');
-    this.#dotEls[this.#current].setAttribute('aria-selected', 'false');
     this.#current = ((index % this.#slides.length) + this.#slides.length) % this.#slides.length;
     this.#slides[this.#current].classList.add('active');
-    this.#dotEls[this.#current].classList.add('active');
-    this.#dotEls[this.#current].setAttribute('aria-selected', 'true');
   }
 
   /** Advance to the next slide. */
@@ -1280,34 +1246,20 @@ class Carousel {
   /** @returns {number} Index of the currently active slide */
   getCurrent() { return this.#current; }
 
-  /** Build slide and dot elements, attach keyboard listener, then start the timer. */
+  /** Build slide elements, attach keyboard listener, then start the timer. */
   init() {
-    if (!this.#heroEl || !this.#dotsWrap) return;
+    if (!this.#heroEl) return;
 
     this.#slides = this.#images.map((src, i) => {
       const div = document.createElement('div');
       div.className = `slide${i === 0 ? ' active' : ''}`;
-      div.style.backgroundImage = `url(${src})`;
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      div.appendChild(img);
       this.#heroEl.insertBefore(div, this.#heroEl.firstChild);
       return div;
-    });
-
-    this.#dotEls = this.#images.map((_, i) => {
-      const dot = document.createElement('div');
-      dot.className = `ndot${i === 0 ? ' active' : ''}`;
-      dot.setAttribute('role', 'tab');
-      dot.setAttribute('tabindex', '0');
-      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-      dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-      dot.addEventListener('click', () => this.goTo(i));
-      dot.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.goTo(i);
-        }
-      });
-      this.#dotsWrap.appendChild(dot);
-      return dot;
     });
 
     document.addEventListener('keydown', (e) => {
