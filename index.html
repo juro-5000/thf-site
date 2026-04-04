@@ -48,7 +48,7 @@ body {
   overflow-x: hidden;
   line-height: 1.65;
   background:
-    radial-gradient(900px 600px at -10% -10%, rgba(34, 211, 238, 0.16), transparent 65%),
+    radial-gradient(900px 600px at 0% 0%, rgba(34, 211, 238, 0.16), transparent 65%),
     radial-gradient(900px 650px at 105% 5%, rgba(192, 132, 252, 0.14), transparent 68%),
     linear-gradient(180deg, #06091a 0%, #04040f 44%, #050512 100%);
 }
@@ -297,7 +297,7 @@ nav.scrolled {
 }
 .join-rows {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
   gap: 0.7rem;
 }
 .join-item {
@@ -616,7 +616,7 @@ section:not(#hero) {
 .features-grid {
   margin-top: clamp(1.5rem, 3vw, 2.4rem);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
   gap: clamp(0.8rem, 1.6vw, 1.1rem);
 }
 @media (max-width: 840px) {
