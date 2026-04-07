@@ -8,32 +8,32 @@
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA6ElEQVR4Xu2Qyw3CQBDF0gadUAcS7VAGolW4wGkPWElmE4Xvs6V38e5lPNzDGSjSMABFGgagSMMAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaLwlwOB+fthX7y61rSzAAxRzX0+5pUxjAAO8JsAUGoBiDh3NkqwA8eOl6MADFGDyYI1WA6r3Bg5auBwNQzFEd3qgOrN6nWHNghQEo5lgbgCPVe8MABjDAbwao6P1vAAMY4LMByFSQ3oMavf8NYAADfFeAf8AAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaBqBIwwAUacQHeACu6DHUTws7PwAAAABJRU5ErkJggg==" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
-    /* ─── Reset & Base ─────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0a0a0a;
-      --bg-card:  #111111;
-      --bg-card2: #1a1a1a;
-      --bg-card3: #1e1e1e;
-      --text:     #ffffff;
-      --text-muted: rgba(255,255,255,0.55);
-      --t:        #e04918;
-      --h:        #4ade80;
-      --f:        #38bdf8;
-      --border:   rgba(255,255,255,0.07);
-      --radius:   16px;
-      --transition: 0.25s ease;
+      --ink: #080808;
+      --paper: #f0ece3;
+      --ash: #111111;
+      --smudge: #1c1c1c;
+      --fog: #2a2a2a;
+      --burn: #e04918;
+      --grow: #4ade80;
+      --sky: #38bdf8;
+      --pale: rgba(240,236,227,0.55);
+      --hairline: rgba(240,236,227,0.09);
+      --rnd: 4px;
+      --rndlg: 10px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      background: var(--ink);
+      color: var(--paper);
       line-height: 1.6;
       overflow-x: hidden;
     }
@@ -42,115 +42,117 @@
     img { display: block; max-width: 100%; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* ─── Utility ──────────────────────────────────────────────────────── */
-    .eyebrow {
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.35;
+    }
+
+    .mono { font-family: 'Space Mono', monospace; }
+
+    .tag {
       display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      color: var(--pale);
+      margin-bottom: 0.9rem;
+      border: 1px solid var(--hairline);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
     }
 
-    .section-heading {
-      font-size: clamp(2rem, 5vw, 3.2rem);
+    .bighead {
+      font-size: clamp(2.2rem, 5.5vw, 3.6rem);
       font-weight: 900;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin-bottom: 1.2rem;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.1rem;
     }
 
-    .section-body {
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.72);
-      max-width: 600px;
-      line-height: 1.75;
+    .bodytxt {
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(240,236,227,0.68);
+      max-width: 580px;
+      line-height: 1.8;
     }
 
-    section { padding: 100px 0; }
+    section { padding: 96px 0; }
 
-    .container {
-      max-width: 1180px;
+    .wrap {
+      max-width: 1160px;
       margin: 0 auto;
       padding: 0 28px;
     }
 
-    /* Fade-in on scroll */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.65s ease, transform 0.65s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ─── Logo ─────────────────────────────────────────────────────────── */
-    .logo {
+    .wordmark {
+      font-family: 'Press Start 2P', cursive;
       font-weight: 900;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.05em;
       line-height: 1;
     }
-    .logo .lt { color: var(--t); }
-    .logo .lh { color: var(--h); }
-    .logo .lf { color: var(--f); }
-    .logo .lp { color: rgba(255,255,255,0.88); }
+    .wordmark .p1 { color: var(--burn); }
+    .wordmark .p2 { color: var(--grow); }
+    .wordmark .p3 { color: var(--sky); }
+    .wordmark .p4 { color: rgba(240,236,227,0.88); }
 
-    /* ─── Navbar ───────────────────────────────────────────────────────── */
-    #navbar {
+    #topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 1000;
       padding: 0 28px;
-      height: 64px;
+      height: 62px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: background 0.3s ease, backdrop-filter 0.3s ease, border-bottom 0.3s ease;
+      transition: background 0.3s, border-bottom 0.3s;
+    }
+    #topbar.stuck {
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--hairline);
     }
 
-    #navbar.scrolled {
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border);
-    }
+    .topbar-logo { font-size: 1.2rem; }
+    .topbar-logo .p4 { display: none; }
 
-    .nav-logo { font-size: 1.25rem; }
-    .nav-logo .lp { display: none; }
-
-    .nav-links {
+    .navlist {
       display: flex;
       align-items: center;
       gap: 2rem;
       list-style: none;
     }
-
-    .nav-links a {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      transition: color var(--transition);
-    }
-    .nav-links a:hover { color: var(--text); }
-
-    .btn-discord {
-      background: #5865F2;
-      color: #fff;
+    .navlist a {
       font-size: 0.82rem;
       font-weight: 700;
-      padding: 0.5rem 1.1rem;
-      border-radius: 8px;
-      border: none;
-      transition: opacity var(--transition), transform var(--transition);
+      letter-spacing: 0.04em;
+      color: var(--pale);
+      transition: color 0.2s;
     }
-    .btn-discord:hover { opacity: 0.88; transform: translateY(-1px); }
+    .navlist a:hover { color: var(--paper); }
 
-    /* Hamburger */
-    #hamburger {
+    .disc-btn {
+      background: #5865F2;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.48rem 1rem;
+      border-radius: var(--rnd);
+      border: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .disc-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    #burgerbtn {
       display: none;
       flex-direction: column;
       gap: 5px;
@@ -158,1011 +160,47 @@
       border: none;
       padding: 6px;
     }
-    #hamburger span {
+    #burgerbtn span {
       display: block;
-      width: 24px;
+      width: 22px;
       height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      background: var(--paper);
+      border-radius: 1px;
+      transition: transform 0.28s, opacity 0.28s;
     }
-    #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    #hamburger.open span:nth-child(2) { opacity: 0; }
-    #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    #burgerbtn.popped span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #burgerbtn.popped span:nth-child(2) { opacity: 0; }
+    #burgerbtn.popped span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    #mobile-menu {
+    #mobnav {
       display: none;
       position: fixed;
-      top: 64px; left: 0; right: 0;
-      background: rgba(10,10,10,0.97);
-      backdrop-filter: blur(18px);
-      padding: 1.5rem 28px 2rem;
+      top: 62px; left: 0; right: 0;
+      background: rgba(8,8,8,0.97);
+      backdrop-filter: blur(16px);
+      padding: 1.4rem 28px 1.8rem;
       z-index: 999;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--hairline);
       flex-direction: column;
-      gap: 1.2rem;
+      gap: 1.1rem;
     }
-    #mobile-menu.open { display: flex; }
-    #mobile-menu a {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      padding: 0.4rem 0;
-      transition: color var(--transition);
-    }
-    #mobile-menu a:hover { color: var(--text); }
-    #mobile-menu .btn-discord { width: fit-content; margin-top: 0.4rem; }
-
-    @media (max-width: 767px) {
-      .nav-links { display: none; }
-      #hamburger { display: flex; }
-    }
-
-    /* ─── Hero ─────────────────────────────────────────────────────────── */
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 28px 80px;
-      overflow: hidden;
-    }
-
-    #hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url('img/1.webp') center center / cover no-repeat;
-      z-index: 0;
-    }
-
-    #hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.72);
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.4rem;
-      max-width: 760px;
-      width: 100%;
-    }
-
-    .hero-logo {
-      font-size: clamp(3.2rem, 10vw, 6.5rem);
-      letter-spacing: -0.05em;
-      line-height: 1;
-    }
-
-    .hero-tagline {
-      font-size: clamp(0.88rem, 2vw, 1.1rem);
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    /* Player count */
-    .player-status {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      padding: 0.45rem 1.1rem;
-      border-radius: 999px;
-      backdrop-filter: blur(8px);
-    }
-    .status-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #777;
-      flex-shrink: 0;
-    }
-    .status-dot.online { background: var(--h); box-shadow: 0 0 6px var(--h); }
-    .status-dot.offline { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
-
-    /* Copy box */
-    .copy-box {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(20,20,20,0.85);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      backdrop-filter: blur(12px);
-      overflow: hidden;
-    }
-
-    .copy-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.85rem 1.2rem;
-      cursor: pointer;
-      transition: background var(--transition);
-      border-bottom: 1px solid var(--border);
-      gap: 0.5rem;
-    }
-    .copy-row:last-of-type { border-bottom: none; }
-    .copy-row:hover { background: rgba(255,255,255,0.05); }
-
-    .copy-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      flex-shrink: 0;
-      width: 90px;
-    }
-    .copy-value {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
-      flex: 1;
-      text-align: left;
-    }
-    .copy-icon {
-      width: 28px; height: 28px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.08);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: background var(--transition);
-    }
-    .copy-row:hover .copy-icon { background: rgba(255,255,255,0.15); }
-    .copy-icon svg { width: 13px; height: 13px; stroke: var(--text-muted); fill: none; }
-
-    .copy-tags {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.7rem 1.2rem;
-      background: rgba(0,0,0,0.3);
-      border-top: 1px solid var(--border);
-    }
-    .copy-tag {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.28rem 0.7rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-    }
-
-    /* Hero buttons */
-    .hero-buttons {
-      display: flex;
-      gap: 0.85rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.6rem;
-      border-radius: 10px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      border: none;
-      transition: opacity var(--transition), transform var(--transition);
-    }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
-    .btn-primary.discord { background: #5865F2; color: #fff; }
-    .btn-primary.youtube { background: #FF0000; color: #fff; }
-
-    /* Scroll arrow */
-    .scroll-arrow {
-      position: absolute;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      animation: bounce 2s ease-in-out infinite;
-    }
-    .scroll-arrow svg {
-      width: 20px; height: 20px;
-      stroke: rgba(255,255,255,0.35);
-      fill: none;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(6px); }
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--h);
-      color: #000;
-      font-weight: 700;
-      font-size: 0.82rem;
-      padding: 0.5rem 1.2rem;
-      border-radius: 999px;
-      z-index: 9999;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ─── About ────────────────────────────────────────────────────────── */
-    #info {
-      background: var(--bg-card);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #info .accent-img {
-      position: absolute;
-      right: 0; top: 0; bottom: 0;
-      width: 42%;
-      object-fit: cover;
-      opacity: 0.12;
-      mask-image: linear-gradient(to left, rgba(0,0,0,0.6), transparent);
-      -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.6), transparent);
-      pointer-events: none;
-    }
-
-    #info .container { position: relative; z-index: 1; }
-
-    .stat-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 2.5rem;
-    }
-
-    .stat-card {
-      background: var(--bg-card3);
-      border-radius: var(--radius);
-      border-bottom: 8px solid #000;
-      padding: 1.6rem 1.4rem;
-    }
-
-    .stat-card-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-card-value {
-      font-size: 1.25rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
-
-    @media (max-width: 767px) {
-      .stat-cards { grid-template-columns: 1fr; }
-    }
-
-    /* ─── Features ─────────────────────────────────────────────────────── */
-    #features { background: var(--bg); }
-
-    .feature-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.2rem;
-      margin-top: 3rem;
-    }
-
-    .feature-card {
-      background: var(--bg-card3);
-      border-radius: var(--radius);
-      border-bottom: 8px solid #000;
-      padding: 2rem 1.8rem;
-      transition: transform var(--transition);
-    }
-    .feature-card:hover { transform: translateY(-4px); }
-
-    .feature-card-icon {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-    }
-
-    .feature-card-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
-    }
-
-    .feature-card-body {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    @media (max-width: 767px) {
-      .feature-cards { grid-template-columns: 1fr; }
-    }
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .feature-cards { grid-template-columns: 1fr 1fr; }
-    }
-
-    /* ─── Gallery ──────────────────────────────────────────────────────── */
-    #gallery {
-      padding: 0;
-      background: var(--bg-card);
-      overflow: hidden;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
-    }
-
-    .gallery-grid img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s ease, filter 0.4s ease;
-      filter: brightness(0.8);
-    }
-    .gallery-grid img:hover {
-      transform: scale(1.03);
-      filter: brightness(1);
-      z-index: 1;
-      position: relative;
-    }
-
-    @media (max-width: 767px) {
-      .gallery-grid {
-        grid-template-columns: repeat(3, 280px);
-        overflow-x: auto;
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 8px;
-        padding: 16px;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-      }
-      .gallery-grid img {
-        flex-shrink: 0;
-        width: 280px;
-        height: 160px;
-        border-radius: 10px;
-        scroll-snap-align: start;
-      }
-    }
-
-    /* ─── Join ─────────────────────────────────────────────────────────── */
-    #join { background: var(--bg-card); }
-
-    .join-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem;
-      margin-top: 3rem;
-    }
-
-    .join-card {
-      background: var(--bg-card3);
-      border-radius: var(--radius);
-      border-bottom: 8px solid #000;
-      padding: 2rem 1.8rem;
-    }
-
-    .join-card-title {
-      font-size: 1rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .join-badge {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.08);
-      color: var(--text-muted);
-    }
-
-    .join-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid var(--border);
-      gap: 0.5rem;
-    }
-    .join-row:last-child { border-bottom: none; }
-
-    .join-row-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
-
-    .join-row-value {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
-      text-align: right;
-    }
-
-    .join-note {
-      text-align: center;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-top: 1.8rem;
-    }
-
-    .btn-kofi {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 2rem;
-      padding: 0.7rem 1.6rem;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1.5px solid var(--border);
-      transition: border-color var(--transition), color var(--transition), transform var(--transition);
-    }
-    .btn-kofi:hover {
-      border-color: rgba(255,255,255,0.25);
-      color: var(--text);
-      transform: translateY(-2px);
-    }
-
-    .join-footer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    @media (max-width: 767px) {
-      .join-cards { grid-template-columns: 1fr; }
-    }
-
-    /* ─── Rules ────────────────────────────────────────────────────────── */
-    #rules-section { background: var(--bg); }
-
-    .rules-preamble {
+    #mobnav.popped { display: flex; }
+    #mobnav a {
       font-size: 0.95rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.68);
-      line-height: 1.75;
-      max-width: 680px;
-      margin-bottom: 3rem;
+      font-weight: 700;
+      color: var(--pale);
+      padding: 0.35rem 0;
+      transition: color 0.2s;
     }
-
-    .rules-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .rules-col-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .rule-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.85rem 1.1rem;
-      border-radius: 10px;
-      margin-bottom: 0.6rem;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.78);
-      line-height: 1.55;
-      border-left: 3px solid transparent;
-    }
-
-    .rule-item.allowed {
-      background: rgba(74,222,128,0.06);
-      border-left-color: var(--h);
-    }
-
-    .rule-item.banned {
-      background: rgba(239,68,68,0.06);
-      border-left-color: #ef4444;
-    }
-
-    .rule-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 0.45rem;
-    }
-    .rule-dot.green { background: var(--h); }
-    .rule-dot.red   { background: #ef4444; }
+    #mobnav a:hover { color: var(--paper); }
+    #mobnav .disc-btn { width: fit-content; margin-top: 0.3rem; }
 
     @media (max-width: 767px) {
-      .rules-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ─── Footer ───────────────────────────────────────────────────────── */
-    footer {
-      background: #0a0a0a;
-      border-top: 1px solid var(--border);
-      padding: 56px 28px 40px;
-      text-align: center;
-    }
-
-    .footer-logo {
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-
-    .footer-links a {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      transition: color var(--transition);
-    }
-    .footer-links a:hover { color: var(--text); }
-
-    .footer-sub {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 0.5rem;
-    }
-
-    .footer-disclaimer {
-      font-size: 0.72rem;
-      font-weight: 400;
-      color: rgba(255,255,255,0.2);
+      .navlist { display: none; }
+      #burgerbtn { display: flex; }
     }
   </style>
 </head>
 <body>
-
-<!-- ── TOAST ─────────────────────────────────────────────────────────── -->
-<div id="toast">Copied!</div>
-
-<!-- ── NAVBAR ─────────────────────────────────────────────────────────── -->
-<nav id="navbar">
-  <a href="#hero" class="logo nav-logo" aria-label="THFproject home">
-    <span class="lt">T</span><span class="lh">H</span><span class="lf">F</span><span class="lp">project</span>
-  </a>
-
-  <ul class="nav-links">
-    <li><a href="#info">About</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#join">Join</a></li>
-    <li><a href="#rules-section">Rules</a></li>
-    <li>
-      <a href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener" class="btn-discord">Join Discord</a>
-    </li>
-  </ul>
-
-  <button id="hamburger" aria-label="Toggle menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-
-<!-- ── MOBILE MENU ────────────────────────────────────────────────────── -->
-<div id="mobile-menu" role="navigation" aria-label="Mobile navigation">
-  <a href="#info">About</a>
-  <a href="#features">Features</a>
-  <a href="#join">Join</a>
-  <a href="#rules-section">Rules</a>
-  <a href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener" class="btn-discord">Join Discord</a>
-</div>
-
-<!-- ── HERO ───────────────────────────────────────────────────────────── -->
-<section id="hero">
-  <div class="hero-content">
-
-    <div class="logo hero-logo">
-      <span class="lt">T</span><span class="lh">H</span><span class="lf">F</span><span class="lp">project</span>
-    </div>
-
-    <p class="hero-tagline">Semi-Anarchy · Void World · Cross-Play</p>
-
-    <div class="player-status" id="playerStatus">
-      <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">Checking server…</span>
-    </div>
-
-    <div class="copy-box">
-      <div class="copy-row" data-copy="thfproject.xyz" role="button" tabindex="0" aria-label="Copy Java IP">
-        <span class="copy-label">Java IP</span>
-        <span class="copy-value">thfproject.xyz</span>
-        <span class="copy-icon">
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>
-        </span>
-      </div>
-      <div class="copy-row" data-copy="thfproject.xyz" role="button" tabindex="0" aria-label="Copy Bedrock IP">
-        <span class="copy-label">Bedrock IP</span>
-        <span class="copy-value">thfproject.xyz</span>
-        <span class="copy-icon">
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>
-        </span>
-      </div>
-      <div class="copy-row" data-copy="25566" role="button" tabindex="0" aria-label="Copy Bedrock Port">
-        <span class="copy-label">Bedrock Port</span>
-        <span class="copy-value">25566</span>
-        <span class="copy-icon">
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>
-        </span>
-      </div>
-      <div class="copy-tags">
-        <span class="copy-tag">Java 1.21.1+</span>
-        <span class="copy-tag">Bedrock</span>
-      </div>
-    </div>
-
-    <div class="hero-buttons">
-      <a href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener" class="btn-primary discord">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
-        Discord
-      </a>
-      <a href="https://www.youtube.com/@THFPROJECT" target="_blank" rel="noopener" class="btn-primary youtube">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        YouTube
-      </a>
-    </div>
-
-  </div>
-
-  <a href="#info" class="scroll-arrow" aria-label="Scroll down">
-    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  </a>
-</section>
-
-<!-- ── ABOUT ──────────────────────────────────────────────────────────── -->
-<section id="info">
-  <img src="img/2.webp" alt="" class="accent-img" aria-hidden="true" />
-  <div class="container">
-    <div class="reveal">
-      <span class="eyebrow">What is thfProject</span>
-      <h2 class="section-heading">A Void World</h2>
-      <p class="section-body">No ground. No rules. An infinite void stretches in every direction. Every 30 seconds a random item drops into your inventory — and vanilla structures spawn right in the void, so you can find End cities, Nether fortresses, strongholds and more floating in the dark.</p>
-    </div>
-
-    <div class="stat-cards reveal">
-      <div class="stat-card">
-        <p class="stat-card-label">World Type</p>
-        <p class="stat-card-value">Infinite Void</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-card-label">Item Drop</p>
-        <p class="stat-card-value">Every 30s</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-card-label">Structures</p>
-        <p class="stat-card-value">Vanilla Floating</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FEATURES ───────────────────────────────────────────────────────── -->
-<section id="features">
-  <div class="container">
-    <div class="reveal">
-      <span class="eyebrow">Core Features</span>
-      <h2 class="section-heading">How It Works</h2>
-    </div>
-
-    <div class="feature-cards">
-      <div class="feature-card reveal">
-        <div class="feature-card-icon">🕳️</div>
-        <h3 class="feature-card-title">Infinite Void</h3>
-        <p class="feature-card-body">No floor. No ceiling. No walls. An endless black expanse in every direction. Every block you stand on is one you placed — or found. Falling ends everything.</p>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-card-icon">🎲</div>
-        <h3 class="feature-card-title">Random Items</h3>
-        <p class="feature-card-body">Every 30 seconds the void delivers a random item to your inventory. Diamond sword? Gravel? Lava bucket? You adapt to what fate sends.</p>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-card-icon">🏰</div>
-        <h3 class="feature-card-title">Vanilla Structures</h3>
-        <p class="feature-card-body">It's a void world — but vanilla structures still spawn. Find End cities, Nether fortresses, strongholds, dungeons and more, all floating in the darkness with nothing beneath them.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── GALLERY ────────────────────────────────────────────────────────── -->
-<section id="gallery">
-  <div class="gallery-grid">
-    <img src="img/1.webp" alt="Server screenshot 1" loading="lazy" />
-    <img src="img/2.webp" alt="Server screenshot 2" loading="lazy" />
-    <img src="img/3.webp" alt="Server screenshot 3" loading="lazy" />
-    <img src="img/4.webp" alt="Server screenshot 4" loading="lazy" />
-    <img src="img/5.webp" alt="Server screenshot 5" loading="lazy" />
-    <img src="img/6.webp" alt="Server screenshot 6" loading="lazy" />
-  </div>
-</section>
-
-<!-- ── JOIN ───────────────────────────────────────────────────────────── -->
-<section id="join">
-  <div class="container">
-    <div class="reveal">
-      <span class="eyebrow">How to Join</span>
-      <h2 class="section-heading">Connect Now</h2>
-    </div>
-
-    <div class="join-cards reveal">
-      <div class="join-card">
-        <h3 class="join-card-title">
-          ⛏️ Java Edition
-          <span class="join-badge">Java</span>
-        </h3>
-        <div class="join-row">
-          <span class="join-row-label">IP Address</span>
-          <span class="join-row-value">thfproject.xyz</span>
-        </div>
-        <div class="join-row">
-          <span class="join-row-label">Version</span>
-          <span class="join-row-value">1.21.1+</span>
-        </div>
-      </div>
-
-      <div class="join-card">
-        <h3 class="join-card-title">
-          📱 Bedrock Edition
-          <span class="join-badge">Bedrock</span>
-        </h3>
-        <div class="join-row">
-          <span class="join-row-label">IP Address</span>
-          <span class="join-row-value">thfproject.xyz</span>
-        </div>
-        <div class="join-row">
-          <span class="join-row-label">Port</span>
-          <span class="join-row-value">25566</span>
-        </div>
-        <div class="join-row">
-          <span class="join-row-label">Platforms</span>
-          <span class="join-row-value">Mobile · Console · PC</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="join-footer reveal">
-      <p class="join-note">Full cross-play enabled — Java &amp; Bedrock together</p>
-      <a href="https://ko-fi.com/zlopi_" target="_blank" rel="noopener" class="btn-kofi">
-        ☕ Support on Ko-fi
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ── RULES ──────────────────────────────────────────────────────────── -->
-<section id="rules-section">
-  <div class="container">
-    <div class="reveal">
-      <span class="eyebrow">Server Rules</span>
-      <h2 class="section-heading">Semi-Anarchy</h2>
-      <p class="rules-preamble">THF runs on a single rule so play stays fair without becoming restrictive. Raid, grief, exploit bugs, use autoclickers, build, or destroy — nearly everything is on the table. The one line is client software that automates combat or bypasses server-side game mechanics. If the server cannot detect it and it hands you an edge in a fight, it is banned.</p>
-    </div>
-
-    <div class="rules-grid reveal">
-      <!-- Allowed -->
-      <div>
-        <p class="rules-col-title">✅ Allowed</p>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Bug and glitch exploitation, including item duplication methods
-        </div>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Autoclickers and keyboard macros for any in-game action
-        </div>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Griefing, raiding, and unrestricted PvP with no boundaries
-        </div>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Teaming, alliances, and betrayal — social dynamics are yours to manage
-        </div>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Performance and QoL mods — Sodium, OptiFine, Iris, Lithium, and equivalents
-        </div>
-        <div class="rule-item allowed">
-          <span class="rule-dot green"></span>
-          Any vanilla game mechanic used creatively or destructively
-        </div>
-      </div>
-
-      <!-- Banned -->
-      <div>
-        <p class="rules-col-title">🚫 Banned</p>
-        <div class="rule-item banned">
-          <span class="rule-dot red"></span>
-          Kill aura and combat reach modifications — automated targeting or extended hitboxes
-        </div>
-        <div class="rule-item banned">
-          <span class="rule-dot red"></span>
-          Fly hacks and speed hacks outside server-permitted flight
-        </div>
-        <div class="rule-item banned">
-          <span class="rule-dot red"></span>
-          X-ray, ESP, or any client that reveals hidden terrain or player positions through walls
-        </div>
-        <div class="rule-item banned">
-          <span class="rule-dot red"></span>
-          Any modification that manipulates server-side combat, movement, or game state in ways impossible through normal input
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
-<footer>
-  <div class="logo footer-logo">
-    <span class="lt">T</span><span class="lh">H</span><span class="lf">F</span>
-  </div>
-  <div class="footer-links">
-    <a href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener">Discord</a>
-    <a href="https://www.youtube.com/@THFPROJECT" target="_blank" rel="noopener">YouTube</a>
-    <a href="https://ko-fi.com/zlopi_" target="_blank" rel="noopener">Ko-fi</a>
-  </div>
-  <p class="footer-sub">thfproject.xyz · Java &amp; Bedrock · Semi-Anarchy Void</p>
-  <p class="footer-disclaimer">Not affiliated with Mojang or Microsoft</p>
-</footer>
-
-<script>
-  /* ── Navbar scroll ─────────────────────────────────────────── */
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 20);
-  }, { passive: true });
-
-  /* ── Hamburger ─────────────────────────────────────────────── */
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobile-menu');
-
-  hamburger.addEventListener('click', () => {
-    const open = mobileMenu.classList.toggle('open');
-    hamburger.classList.toggle('open', open);
-    hamburger.setAttribute('aria-expanded', String(open));
-  });
-
-  // Close on link click
-  mobileMenu.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
-      mobileMenu.classList.remove('open');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    });
-  });
-
-  /* ── Player status ─────────────────────────────────────────── */
-  const statusDot  = document.getElementById('statusDot');
-  const statusText = document.getElementById('statusText');
-
-  async function fetchStatus() {
-    try {
-      const res = await fetch('https://api.mcstatus.io/v2/status/java/thfproject.xyz');
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      if (data.online) {
-        statusDot.className  = 'status-dot online';
-        statusText.textContent = `${data.players.online} player${data.players.online !== 1 ? 's' : ''} online`;
-      } else {
-        statusDot.className  = 'status-dot offline';
-        statusText.textContent = 'Offline';
-      }
-    } catch {
-      statusDot.className  = 'status-dot offline';
-      statusText.textContent = 'Offline';
-    }
-  }
-
-  fetchStatus();
-  setInterval(fetchStatus, 30000);
-
-  /* ── Copy rows ─────────────────────────────────────────────── */
-  let toastTimer = null;
-  const toast = document.getElementById('toast');
-
-  function showToast() {
-    clearTimeout(toastTimer);
-    toast.classList.add('show');
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
-  }
-
-  document.querySelectorAll('.copy-row').forEach(row => {
-    const activate = () => {
-      const val = row.dataset.copy;
-      navigator.clipboard.writeText(val).then(showToast).catch(() => {
-        // Fallback for browsers without clipboard API
-        const ta = document.createElement('textarea');
-        ta.value = val;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast();
-      });
-    };
-    row.addEventListener('click', activate);
-    row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') activate(); });
-  });
-
-  /* ── Scroll reveal ─────────────────────────────────────────── */
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-</script>
 </body>
 </html>
