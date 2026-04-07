@@ -1,1561 +1,209 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="thfProject — A semi-anarchy void Minecraft server. No floor, random items every 30 seconds, Java & Bedrock cross-play.">
-<title>thfProject — Void Minecraft Server</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA6ElEQVR4Xu2Qyw3CQBDF0gadUAcS7VAGolW4wGkPWElmE4Xvs6V38e5lPNzDGSjSMABFGgagSMMAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaLwlwOB+fthX7y61rSzAAxRzX0+5pUxjAAO8JsAUGoBiDh3NkqwA8eOl6MADFGDyYI1WA6r3Bg5auBwNQzFEd3qgOrN6nWHNghQEo5lgbgCPVe8MABjDAbwao6P1vAAMY4LMByFSQ3oMavf8NYAADfFeAf8AAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaBqBIwwAUacQHeACu6DHUTws7PwAAAABJRU5ErkJggg==">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-
-/* ─── RESET ─── */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-/* ─── DESIGN TOKENS ─── */
-:root {
-  --void:    #050507;
-  --surface: #0a0c10;
-  --raised:  #101318;
-  --overlay: #171b22;
-  --accent:  #e04918;
-  --accent-2:#ff6432;
-  --warm:    #e8a020;
-  --online:  #18b870;
-  --offline: #d03030;
-  --text:    #ddd9d2;
-  --muted:   #7a7570;
-  --dim:     #2e2c29;
-  --bdr:     rgba(224,73,24,0.11);
-  --bdr-hi:  rgba(255,100,50,0.42);
-  --r:       3px;
-}
-
-
-/* ─── BASE ─── */
-body {
-  background: var(--void);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
-  line-height: 1.65;
-}
-
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: var(--accent); }
-
-/* ─── BUTTON RESET ─── */
-button {
-  font: inherit;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  color: inherit;
-}
-
-/* ─── FOCUS ─── */
-:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 3px;
-  border-radius: var(--r);
-}
-
-/* ─── NAV ─── */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(1.25rem, 5vw, 3.5rem);
-  background: transparent;
-  border-bottom: 1px solid transparent;
-  transition: background 0.3s, border-color 0.3s;
-}
-nav.scrolled {
-  background: rgba(5,5,7,0.97);
-  border-bottom-color: var(--bdr);
-}
-
-.nav-logo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #fff;
-  text-decoration: none;
-}
-.nav-logo .lt { color: var(--accent); }
-.nav-logo .lh { color: #4ade80; }
-.nav-logo .lf { color: #38bdf8; }
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: clamp(1.2rem, 2.5vw, 2rem);
-  list-style: none;
-}
-.nav-links a {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.18s;
-}
-.nav-links a:hover { color: var(--text); }
-
-.nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1.1rem;
-  background: var(--accent);
-  border-radius: var(--r);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #fff;
-  font-weight: 500;
-  text-decoration: none;
-  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
-}
-.nav-cta:hover {
-  background: var(--accent-2);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(224,73,24,0.4);
-}
-.nav-cta svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-@media (max-width: 640px) { .nav-links { display: none; } }
-
-/* ─── HERO ─── */
-#hero {
-  position: relative;
-  height: 100vh;
-  min-height: 600px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1.8s ease;
-}
-.slide.active { opacity: 1; }
-.slide img { width: 100%; height: 100%; object-fit: cover; }
-
-#hero-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: rgba(0,0,0,0.76);
-}
-
-#hero-grid {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(224,73,24,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(224,73,24,0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-#hero-fade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  height: clamp(180px, 28vw, 380px);
-  pointer-events: none;
-  background: linear-gradient(to bottom, transparent, var(--void));
-}
-
-.hero-content {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 4vw, 2rem) 2rem;
-  width: 100%;
-}
-
-.logo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: clamp(5rem, 20vw, 14rem);
-  line-height: 0.9;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #fff;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.8);
-  margin-bottom: 0.75rem;
-  animation: fadeUp 0.65s ease both;
-}
-.logo .lt { color: var(--accent); }
-.logo .lh { color: #4ade80; }
-.logo .lf { color: #38bdf8; }
-.logo .proj { color: rgba(255,255,255,0.9); }
-
-.hero-tagline {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.56rem, 1.2vw, 0.72rem);
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.32);
-  margin-bottom: clamp(0.9rem, 2vw, 1.5rem);
-  animation: fadeUp 0.65s 0.1s both;
-}
-
-.player-count {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.54rem, 1vw, 0.66rem);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.28);
-  margin-bottom: clamp(1.4rem, 2.8vw, 2.2rem);
-  animation: fadeUp 0.65s 0.2s both;
-}
-#player-text { color: rgba(255,255,255,0.55); }
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--online);
-  box-shadow: 0 0 8px var(--online), 0 0 18px rgba(24,184,112,0.3);
-  animation: statusPulse 2.5s infinite;
-  flex-shrink: 0;
-}
-.status-dot.offline {
-  background: var(--offline);
-  box-shadow: 0 0 8px var(--offline);
-  animation: none;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
-}
-
-.join-box {
-  background: rgba(6,7,9,0.94);
-  border: 1px solid var(--bdr);
-  border-top: 2px solid var(--accent);
-  padding: clamp(1.1rem, 2.5vw, 1.6rem) clamp(1.5rem, 4vw, 3rem);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  border-radius: var(--r);
-  animation: fadeUp 0.65s 0.3s both;
-}
-
-.join-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.44rem, 0.9vw, 0.52rem);
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.18);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.join-rows {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.join-item {
-  padding: 0.4rem clamp(1rem, 2.5vw, 2.2rem);
-  border-right: 1px solid rgba(255,255,255,0.05);
-  text-align: left;
-  border-radius: var(--r);
-  transition: background 0.18s;
-}
-.join-item:first-child { padding-left: 0; }
-.join-item:last-child  { padding-right: 0; border-right: none; }
-.join-item:hover { background: rgba(224,73,24,0.07); }
-
-.join-item .jlabel {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.42rem, 0.8vw, 0.5rem);
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.join-item .jval {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  letter-spacing: 0.03em;
-  color: #fff;
-}
-
-.copy-toast {
-  position: fixed;
-  bottom: 1.8rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: rgba(224,73,24,0.12);
-  border: 1px solid rgba(255,100,50,0.38);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--accent-2);
-  padding: 0.6rem 1.5rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s, transform 0.25s;
-  z-index: 999;
-  border-radius: var(--r);
-}
-.copy-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.platform-tags {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: clamp(0.9rem, 2vw, 1.4rem);
-  justify-content: center;
-  animation: fadeUp 0.65s 0.45s both;
-}
-
-.ptag {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.44rem, 0.9vw, 0.52rem);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  padding: 0.28rem 0.85rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.28);
-  border-radius: var(--r);
-}
-.ptag.java    { border-color: rgba(240,165,24,0.3);  color: rgba(240,165,24,0.7); }
-.ptag.bedrock { border-color: rgba(56,189,248,0.28); color: rgba(56,189,248,0.6); }
-
-.social-links {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: clamp(1rem, 2.2vw, 1.6rem);
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeUp 0.65s 0.58s both;
-}
-
-.social-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-width: clamp(120px, 14vw, 155px);
-  padding: clamp(0.52rem, 1.2vw, 0.72rem) clamp(0.9rem, 1.8vw, 1.2rem);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.5rem, 0.9vw, 0.6rem);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  border: 1px solid var(--bdr-hi);
-  color: var(--accent-2);
-  background: rgba(224,73,24,0.06);
-  border-radius: var(--r);
-  text-decoration: none;
-  transition: transform 0.16s, background 0.16s, border-color 0.16s, box-shadow 0.16s;
-}
-.social-btn:hover {
-  transform: translateY(-2px);
-  background: rgba(224,73,24,0.12);
-  border-color: rgba(255,100,50,0.75);
-  box-shadow: 0 8px 24px rgba(224,73,24,0.25);
-}
-.social-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-.social-btn.youtube {
-  border-color: rgba(220,50,50,0.36);
-  color: #ff9898;
-  background: rgba(200,30,30,0.06);
-}
-.social-btn.youtube:hover {
-  border-color: rgba(250,80,80,0.75);
-  background: rgba(200,30,30,0.12);
-  box-shadow: 0 8px 24px rgba(200,30,30,0.22);
-}
-
-.scroll-hint {
-  position: absolute;
-  bottom: clamp(1.2rem, 2.5vw, 2.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 4;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.42rem, 0.8vw, 0.5rem);
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.14);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-  animation: fadeUp 0.65s 0.8s both;
-}
-.scroll-arrow {
-  width: 1px;
-  height: clamp(22px, 3vw, 36px);
-  background: linear-gradient(to bottom, rgba(224,73,24,0.45), transparent);
-  animation: arrowPulse 2s ease-in-out infinite;
-}
-
-@keyframes arrowPulse {
-  0%, 100% { opacity: 0.3; }
-  50%       { opacity: 1; }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── SHARED SECTION STYLES ─── */
-section:not(#hero) {
-  position: relative;
-  padding: clamp(4rem, 8vw, 7.5rem) clamp(1rem, 4vw, 2.5rem);
-}
-
-.section-wrap { max-width: 1100px; margin: 0 auto; }
-
-.section-eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.5rem, 1vw, 0.62rem);
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: clamp(0.55rem, 1.2vw, 0.9rem);
-}
-.section-eyebrow::before {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-
-.section-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: clamp(3.5rem, 9vw, 6.5rem);
-  letter-spacing: 0.025em;
-  line-height: 0.9;
-  text-transform: uppercase;
-  color: #fff;
-  margin-bottom: clamp(0.8rem, 2vw, 1.5rem);
-}
-.section-title span { color: var(--accent); }
-
-.section-desc {
-  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
-  color: var(--muted);
-  line-height: 1.88;
-  max-width: 58ch;
-  font-weight: 300;
-}
-.section-desc strong { color: var(--text); font-weight: 600; }
-
-/* ─── INFO ─── */
-#info {
-  background: var(--surface);
-  border-top: 1px solid var(--bdr);
-}
-#info::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(224,73,24,0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(224,73,24,0.022) 1px, transparent 1px);
-  background-size: 52px 52px;
-}
-
-.info-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 6vw, 6rem);
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-@media (max-width: 720px) {
-  .info-inner { grid-template-columns: 1fr; }
-}
-
-.info-visual { display: flex; flex-direction: column; gap: 0.65rem; }
-
-.stat-card {
-  background: var(--raised);
-  border: 1px solid var(--bdr);
-  border-left: 3px solid var(--accent);
-  padding: 1rem 1.4rem;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  border-radius: var(--r);
-  opacity: 0;
-  transform: translateX(22px);
-  transition: opacity 0.5s, transform 0.5s, border-left-color 0.18s;
-}
-.stat-card.visible { opacity: 1; transform: translateX(0); }
-.stat-card:hover { border-left-color: var(--accent-2); }
-.stat-card:nth-child(2) { transition-delay: 0.1s; border-left-color: var(--online); }
-.stat-card:nth-child(3) { transition-delay: 0.2s; border-left-color: var(--warm); }
-
-.stat-icon {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 1.5rem;
-  color: rgba(255,255,255,0.15);
-  flex-shrink: 0;
-  width: 32px;
-  text-align: center;
-  line-height: 1;
-}
-
-.stat-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--muted);
-  display: block;
-  margin-bottom: 0.18rem;
-}
-.stat-value {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 2.5vw, 1.75rem);
-  color: #fff;
-  letter-spacing: 0.02em;
-}
-
-.info-text {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.6s, transform 0.6s;
-}
-.info-text.visible { opacity: 1; transform: translateY(0); }
-
-/* ─── FEATURES ─── */
-#features {
-  background: var(--void);
-  padding-top: 0;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  background: var(--bdr);
-  border: 1px solid var(--bdr);
-  margin-top: clamp(2rem, 4vw, 3.5rem);
-}
-@media (max-width: 680px) {
-  .features-grid { grid-template-columns: 1fr; }
-}
-
-.fcard {
-  background: var(--surface);
-  padding: clamp(1.8rem, 3.5vw, 2.8rem) clamp(1.4rem, 2.5vw, 2.2rem);
-  position: relative;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.5s, transform 0.5s, background 0.2s;
-}
-.fcard.visible { opacity: 1; transform: translateY(0); }
-.fcard:hover { background: var(--raised); }
-.fcard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.fcard:hover::before { opacity: 1; }
-
-.fcard-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.18);
-  display: block;
-  margin-bottom: 1.2rem;
-}
-
-.fcard-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 2rem;
-  color: rgba(224,73,24,0.2);
-  display: block;
-  margin-bottom: 0.8rem;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.fcard h3 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: clamp(1.7rem, 3.2vw, 2.4rem);
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  color: var(--warm);
-  margin-bottom: clamp(0.5rem, 1vw, 0.85rem);
-}
-.fcard p {
-  font-size: clamp(0.88rem, 1.4vw, 0.95rem);
-  color: var(--muted);
-  line-height: 1.85;
-  font-weight: 300;
-}
-.fcard p strong { color: var(--accent-2); font-weight: 500; }
-
-/* ─── JOIN ─── */
-#join { background: var(--surface); }
-
-.join-section-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  background: var(--bdr);
-  border: 1px solid var(--bdr);
-  margin-top: clamp(2rem, 4vw, 3.5rem);
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.6s, transform 0.6s;
-}
-.join-section-inner.visible { opacity: 1; transform: translateY(0); }
-@media (max-width: 600px) {
-  .join-section-inner { grid-template-columns: 1fr; }
-}
-
-.pcard {
-  background: var(--raised);
-  padding: clamp(1.8rem, 3.5vw, 3rem) clamp(1.4rem, 3vw, 2.5rem);
-  display: flex;
-  gap: 1.2rem;
-  align-items: flex-start;
-  transition: background 0.2s;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-}
-.pcard:hover { background: var(--overlay); }
-.pcard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.pcard:hover::before { opacity: 1; }
-
-.pcard-icon {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 3rem;
-  color: rgba(224,73,24,0.18);
-  flex-shrink: 0;
-  line-height: 1;
-  transition: color 0.25s;
-}
-.pcard:hover .pcard-icon { color: rgba(255,100,50,0.42); }
-
-.pcard-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  color: var(--warm);
-  display: block;
-  margin-bottom: 0.4rem;
-}
-
-.pcard-detail {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.6rem, 1.1vw, 0.7rem);
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  line-height: 2;
-}
-.pcard-detail span { color: rgba(255,100,50,0.7); }
-
-.cross-note {
-  grid-column: span 2;
-  background: var(--surface);
-  padding: 0.9rem;
-  text-align: center;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(0.48rem, 0.9vw, 0.58rem);
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.22);
-  border-top: 1px solid var(--bdr);
-}
-@media (max-width: 600px) { .cross-note { grid-column: span 1; } }
-
-/* ─── RULES ─── */
-#rules-section { background: var(--void); }
-
-.rules-box {
-  border: 1px solid var(--bdr);
-  border-top: 2px solid var(--accent);
-  background: var(--surface);
-  padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 3rem);
-  margin-top: clamp(2rem, 4vw, 3.5rem);
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.6s, transform 0.6s;
-  border-radius: var(--r);
-}
-.rules-box.visible { opacity: 1; transform: translateY(0); }
-
-.rules-preamble {
-  border-bottom: 1px solid var(--bdr);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-.rules-preamble p {
-  font-size: clamp(0.95rem, 1.7vw, 1.05rem);
-  color: var(--muted);
-  line-height: 1.88;
-  max-width: 72ch;
-}
-.rules-preamble p strong { color: var(--text); font-weight: 600; }
-
-.rules-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(1.5rem, 3vw, 3rem);
-}
-@media (max-width: 640px) { .rules-columns { grid-template-columns: 1fr; } }
-
-.rules-col-head {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-.rules-col-head::before {
-  content: '';
-  width: 16px;
-  height: 2px;
-  background: currentColor;
-  display: block;
-  flex-shrink: 0;
-}
-.rules-col-head.allowed { color: var(--online); }
-.rules-col-head.banned  { color: #e05050; }
-
-.rule-list {
-  list-style: none;
-  display: grid;
-  gap: 0.55rem;
-}
-.rule-list li {
-  border: 1px solid rgba(255,255,255,0.05);
-  background: var(--raised);
-  padding: 0.85rem 1.1rem;
-  color: rgba(210,205,198,0.85);
-  font-size: clamp(0.88rem, 1.4vw, 0.95rem);
-  line-height: 1.7;
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-  transition: background 0.18s, border-color 0.18s;
-  border-radius: var(--r);
-}
-.rule-list li::before {
-  flex-shrink: 0;
-  margin-top: 0.05rem;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem;
-}
-.rule-list.allowed li:hover { background: var(--overlay); border-color: rgba(24,184,112,0.2); }
-.rule-list.allowed li::before { content: '+'; color: var(--online); }
-.rule-list.banned  li:hover { background: var(--overlay); border-color: rgba(200,48,48,0.2); }
-.rule-list.banned  li::before { content: 'x'; color: #e05050; }
-.rule-list li strong { color: #ff9090; font-weight: 600; }
-
-/* ─── FOOTER ─── */
-footer {
-  background: #040406;
-  border-top: 1px solid var(--bdr);
-  padding: clamp(2rem, 4vw, 2.8rem) clamp(1rem, 4vw, 2.5rem);
-}
-
-.footer-wrap {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2rem;
-  text-align: center;
-}
-
-.footer-logo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 2.2rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #fff;
-  text-decoration: none;
-}
-.footer-logo .lt { color: var(--accent); }
-.footer-logo .lh { color: #4ade80; }
-.footer-logo .lf { color: #38bdf8; }
-
-.footer-links {
-  display: flex;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.footer-links a {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.18s;
-}
-.footer-links a:hover { color: var(--accent-2); }
-
-.footer-copy {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.15);
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 920px) {
-  .join-rows { flex-direction: column; }
-  .join-label { margin-bottom: 0.55rem; }
-  .hero-tagline { letter-spacing: 0.2em; }
-}
-
-@media (max-width: 480px) {
-  .scroll-hint { display: none; }
-  section:not(#hero) { padding-left: 0.85rem; padding-right: 0.85rem; }
-}
-
-</style>
-
-</head>
-<body>
-
-<!-- NAV -->
-<nav id="navbar" aria-label="Main navigation">
-  <a class="nav-logo" href="#hero" aria-label="thfProject home"><span class="lt">T</span><span class="lh">H</span><span class="lf">F</span>project</a>
-  <ul class="nav-links">
-    <li><a href="#info">about</a></li>
-    <li><a href="#features">features</a></li>
-    <li><a href="#join">join</a></li>
-    <li><a href="#rules-section">rules</a></li>
-  </ul>
-  <a class="nav-cta" href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener noreferrer" aria-label="Join Discord">
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.1.134 18.11a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-    Discord
-  </a>
-</nav>
-
-<div class="copy-toast" id="copy-toast" role="status" aria-live="polite" aria-atomic="true">Copied!</div>
-
-<main>
-
-<!-- HERO -->
-<section id="hero" aria-label="Hero">
-  <div id="hero-overlay" aria-hidden="true"></div>
-  <div id="hero-grid" aria-hidden="true"></div>
-  <div id="hero-fade" aria-hidden="true"></div>
-
-  <div class="hero-content" id="hero-content">
-    <div class="logo" aria-label="thfproject"><span class="lt">T</span><span class="lh">H</span><span class="lf">F</span><span class="proj">project</span></div>
-    <p class="hero-tagline">Semi&#8209;Anarchy &nbsp;·&nbsp; Void World &nbsp;·&nbsp; Cross&#8209;Play</p>
-
-    <div class="player-count" aria-live="polite" aria-atomic="true">
-      <div class="status-dot" id="status-dot" aria-hidden="true"></div>
-      <span id="player-text">Checking server…</span>
-    </div>
-
-    <div class="join-box" aria-label="Server connection info">
-      <div class="join-label">Click any field to copy</div>
-      <div class="join-rows">
-        <button class="join-item" data-copy-text="thfproject.xyz" data-copy-label="Java IP copied">
-          <span class="jlabel">Java IP</span>
-          <span class="jval">thfproject.xyz</span>
-        </button>
-        <button class="join-item" data-copy-text="thfproject.xyz" data-copy-label="Bedrock IP copied">
-          <span class="jlabel">Bedrock IP</span>
-          <span class="jval">thfproject.xyz</span>
-        </button>
-        <button class="join-item" data-copy-text="25566" data-copy-label="Port copied">
-          <span class="jlabel">Bedrock Port</span>
-          <span class="jval">25566</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="platform-tags" aria-label="Supported platforms">
-      <span class="ptag java">Java 1.21.1+</span>
-      <span class="ptag bedrock">Bedrock</span>
-    </div>
-
-    <div class="social-links">
-      <a class="social-btn" href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener noreferrer" aria-label="Join Discord server">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.1.134 18.11a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-        Discord
-      </a>
-      <a class="social-btn youtube" href="https://www.youtube.com/@THFPROJECT" target="_blank" rel="noopener noreferrer" aria-label="YouTube channel @THFPROJECT">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        @THFPROJECT
-      </a>
-    </div>
-  </div>
-
-  <div class="scroll-hint" aria-hidden="true">
-    <span>scroll</span>
-    <div class="scroll-arrow"></div>
-  </div>
-</section>
-
-<!-- INFO -->
-<section id="info" aria-labelledby="info-heading">
-  <div class="section-wrap">
-    <div class="info-inner">
-      <div class="info-text" id="info-text">
-        <p class="section-eyebrow">What is thfProject</p>
-        <h2 class="section-title" id="info-heading">A <span>Void</span> World</h2>
-        <p class="section-desc">No ground. No rules. An infinite void stretches in every direction. Every <strong>30 seconds</strong> a random item drops into your inventory — and vanilla structures spawn right in the void, so you can find <strong>End cities, Nether fortresses, strongholds</strong> and more floating in the dark.</p>
-      </div>
-      <div class="info-visual">
-        <div class="stat-card" id="sc1">
-          <div class="stat-icon" aria-hidden="true">VD</div>
-          <div>
-            <span class="stat-label">World Type</span>
-            <span class="stat-value">Infinite Void</span>
-          </div>
-        </div>
-        <div class="stat-card" id="sc2">
-          <div class="stat-icon" aria-hidden="true">30</div>
-          <div>
-            <span class="stat-label">Item Drop</span>
-            <span class="stat-value">Every 30s</span>
-          </div>
-        </div>
-        <div class="stat-card" id="sc3">
-          <div class="stat-icon" aria-hidden="true">FT</div>
-          <div>
-            <span class="stat-label">Structures</span>
-            <span class="stat-value">Vanilla Floating</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section id="features" aria-labelledby="features-heading">
-  <div class="section-wrap">
-    <p class="section-eyebrow">Core Features</p>
-    <h2 class="section-title" id="features-heading">How It <span>Works</span></h2>
-    <div class="features-grid">
-      <article class="fcard" style="transition-delay:0s">
-        <span class="fcard-num" aria-hidden="true">01</span>
-        <span class="fcard-label" aria-hidden="true">VOID</span>
-        <h3>Infinite Void</h3>
-        <p>No floor. No ceiling. No walls. An endless black expanse in every direction. Every block you stand on is one you placed — or found. <strong>Falling ends everything.</strong></p>
-      </article>
-      <article class="fcard" style="transition-delay:0.1s">
-        <span class="fcard-num" aria-hidden="true">02</span>
-        <span class="fcard-label" aria-hidden="true">ITEM</span>
-        <h3>Random Items</h3>
-        <p>Every <strong>30 seconds</strong> the void delivers a random item to your inventory. Diamond sword? Gravel? Lava bucket? You adapt to what fate sends.</p>
-      </article>
-      <article class="fcard" style="transition-delay:0.2s">
-        <span class="fcard-num" aria-hidden="true">03</span>
-        <span class="fcard-label" aria-hidden="true">STRUC</span>
-        <h3>Vanilla Structures</h3>
-        <p>It's a void world — but vanilla structures still spawn. Find <strong>End cities, Nether fortresses, strongholds, dungeons</strong> and more, all floating in the darkness with nothing beneath them.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- JOIN -->
-<section id="join" aria-labelledby="join-heading">
-  <div class="section-wrap">
-    <p class="section-eyebrow">How to Join</p>
-    <h2 class="section-title" id="join-heading">Connect <span>Now</span></h2>
-    <div class="join-section-inner" id="join-cards">
-      <button class="pcard" data-copy-text="thfproject.xyz" data-copy-label="Java IP copied">
-        <div class="pcard-icon" aria-hidden="true">J</div>
-        <div>
-          <span class="pcard-name">Java Edition</span>
-          <div class="pcard-detail"><span>thfproject.xyz</span><br>Version 1.21.1+</div>
-        </div>
-      </button>
-      <button class="pcard" data-copy-text="thfproject.xyz" data-copy-label="Bedrock IP copied">
-        <div class="pcard-icon" aria-hidden="true">B</div>
-        <div>
-          <span class="pcard-name">Bedrock Edition</span>
-          <div class="pcard-detail"><span>thfproject.xyz</span> · Port <span>25566</span><br>Mobile · Console · PC</div>
-        </div>
-      </button>
-      <div class="cross-note">Full cross-play enabled — Java &amp; Bedrock together</div>
-    </div>
-  </div>
-</section>
-
-<!-- RULES -->
-<section id="rules-section" aria-labelledby="rules-heading">
-  <div class="section-wrap">
-    <p class="section-eyebrow">Server Rules</p>
-    <h2 class="section-title" id="rules-heading">Semi-<span>Anarchy</span></h2>
-    <div class="rules-box" id="rules-box">
-      <div class="rules-preamble">
-        <p>THF runs on a single rule so play stays fair without becoming restrictive. Raid, grief, exploit bugs, use autoclickers, build, or destroy — nearly everything is on the table. The one line is <strong>client software that automates combat or bypasses server-side game mechanics</strong>. If the server cannot detect it and it hands you an edge in a fight, it is banned.</p>
-      </div>
-      <div class="rules-columns">
-        <div>
-          <div class="rules-col-head allowed">Allowed</div>
-          <ul class="rule-list allowed">
-            <li>Bug and glitch exploitation, including item duplication methods</li>
-            <li>Autoclickers and keyboard macros for any in-game action</li>
-            <li>Griefing, raiding, and unrestricted PvP with no boundaries</li>
-            <li>Teaming, alliances, and betrayal — social dynamics are yours to manage</li>
-            <li>Performance and QoL mods — Sodium, OptiFine, Iris, Lithium, and equivalents</li>
-            <li>Any vanilla game mechanic used creatively or destructively</li>
-          </ul>
-        </div>
-        <div>
-          <div class="rules-col-head banned">Banned</div>
-          <ul class="rule-list banned">
-            <li><strong>Kill aura and combat reach modifications</strong> — automated targeting or extended hitboxes</li>
-            <li>Fly hacks and speed hacks outside server-permitted flight</li>
-            <li>X-ray, ESP, or any client that reveals hidden terrain or player positions through walls</li>
-            <li>Any modification that manipulates server-side combat, movement, or game state in ways impossible through normal input</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-wrap">
-    <a class="footer-logo" href="#hero" aria-label="thfProject home"><span class="lt">T</span><span class="lh">H</span><span class="lf">F</span>project</a>
-    <nav class="footer-links" aria-label="Social links">
-      <a href="https://discord.gg/N7SWAkUjSs" target="_blank" rel="noopener noreferrer">Discord</a>
-      <a href="https://www.youtube.com/@THFPROJECT" target="_blank" rel="noopener noreferrer">YouTube</a>
-    </nav>
-    <span class="footer-copy">thfproject.xyz &nbsp;·&nbsp; Java &amp; Bedrock &nbsp;·&nbsp; Semi-Anarchy Void</span>
-  </div>
-</footer>
-
-<script>
-/**
- * thfProject — Main site controller
- *
- * Architecture: Class-based ES6+
- *  - ThfApp        : Application bootstrap and event delegation
- *  - Carousel      : Hero image slideshow with keyboard & dot navigation
- *  - ScrollManager : Throttled scroll handler (navbar, parallax, reveal)
- *  - Toast         : Copy-to-clipboard feedback overlay
- *  - StatusChecker : Periodic Minecraft server status polling
- */
-
-'use strict';
-
-/* ─────────────────────────────────────────────
-   CONFIG — single source of truth for all
-   hard-coded values and selector strings
-───────────────────────────────────────────── */
-
-/** @type {Object} Site-wide configuration constants */
-const CONFIG = {
-  carousel: {
-    /** Auto-advance interval in milliseconds */
-    interval: 4500,
-    images: [
-      'img/1.webp',
-      'img/2.webp',
-      'img/3.webp',
-      'img/4.webp',
-      'img/5.webp',
-      'img/6.webp',
-    ],
-  },
-  scroll: {
-    /** Scroll distance (px) before navbar gains glass effect */
-    navbarThreshold: 30,
-    /** Fraction of hero height at which parallax fade is complete */
-    parallaxFadeFraction: 0.55,
-    /** Multiplier for hero-overlay opacity reduction */
-    overlayFadeFactor: 0.5,
-    /** Multiplier for hero-content opacity reduction */
-    contentFadeFactor: 2.5,
-    /** Fraction of viewport height used as reveal threshold */
-    revealThreshold: 0.9,
-    /** Minimum ms between scroll handler invocations (throttle) */
-    throttleMs: 16,
-  },
-  toast: {
-    /** Duration (ms) the toast remains visible */
-    displayMs: 1800,
-    defaultMessage: 'Copied!',
-  },
-  status: {
-    /** Minecraft server hostname */
-    host: 'thfproject.xyz',
-    /** mcstatus.io API base URL */
-    apiUrl: 'https://api.mcstatus.io/v2/status/java/',
-    /** Polling interval in milliseconds */
-    pollInterval: 30000,
-  },
-  selectors: {
-    navbar:      '#navbar',
-    hero:        '#hero',
-    heroOverlay: '#hero-overlay',
-    heroContent: '#hero-content',
-    copyToast:   '#copy-toast',
-    statusDot:   '#status-dot',
-    playerText:  '#player-text',
-    revealEls: [
-      '#info-text',
-      '#sc1',
-      '#sc2',
-      '#sc3',
-      '.fcard',
-      '#join-cards',
-      '#rules-box',
-    ],
-  },
-};
-
-/* ─────────────────────────────────────────────
-   HELPERS
-───────────────────────────────────────────── */
-
-/**
- * Safely query a single element; returns null and warns if missing.
- * @param {string} selector - CSS selector
- * @param {ParentNode} [root=document]
- * @returns {Element|null}
- */
-function qs(selector, root = document) {
-  const el = root.querySelector(selector);
-  if (!el) console.warn(`[thf] Element not found: ${selector}`);
-  return el;
-}
-
-/**
- * Returns a throttled version of the given function.
- * @param {Function} fn - Function to throttle
- * @param {number} limitMs - Minimum ms between calls
- * @returns {Function}
- */
-function throttle(fn, limitMs) {
-  let lastCall = 0;
-  return function throttled(...args) {
-    const now = Date.now();
-    if (now - lastCall >= limitMs) {
-      lastCall = now;
-      fn.apply(this, args);
-    }
-  };
-}
-
-/* ─────────────────────────────────────────────
-   CAROUSEL
-───────────────────────────────────────────── */
-
-/**
- * Hero image carousel with auto-advance and
- * keyboard left/right arrow support.
- */
-class Carousel {
-  /** @type {string[]} */ #images;
-  /** @type {number} */   #interval;
-  /** @type {Element|null} */ #heroEl;
-  /** @type {HTMLElement[]} */ #slides = [];
-  /** @type {number} */ #current = 0;
-  /** @type {number|null} */ #timer = null;
-
-  constructor() {
-    this.#images   = CONFIG.carousel.images;
-    this.#interval = CONFIG.carousel.interval;
-    this.#heroEl   = qs(CONFIG.selectors.hero);
-  }
-
-  /**
-   * Navigate to a specific slide index.
-   * @param {number} index - Target slide index
-   */
-  goTo(index) {
-    if (!this.#slides.length) return;
-    this.#slides[this.#current].classList.remove('active');
-    this.#current = ((index % this.#slides.length) + this.#slides.length) % this.#slides.length;
-    this.#slides[this.#current].classList.add('active');
-  }
-
-  /** Advance to the next slide. */
-  #next() {
-    this.goTo(this.#current + 1);
-  }
-
-  /** Start the auto-advance timer. */
-  #startTimer() {
-    this.#timer = setInterval(() => this.#next(), this.#interval);
-  }
-
-  /** @returns {HTMLElement[]} Current slide elements */
-  getSlides() { return this.#slides; }
-
-  /** @returns {number} Index of the currently active slide */
-  getCurrent() { return this.#current; }
-
-  /** Build slide elements, attach keyboard listener, then start the timer. */
-  init() {
-    if (!this.#heroEl) return;
-
-    this.#slides = this.#images.map((src, i) => {
-      const div = document.createElement('div');
-      div.className = `slide${i === 0 ? ' active' : ''}`;
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = '';
-      img.setAttribute('aria-hidden', 'true');
-      div.appendChild(img);
-      this.#heroEl.insertBefore(div, this.#heroEl.firstChild);
-      return div;
-    });
-
-    document.addEventListener('keydown', (e) => {
-      // Only handle arrow keys when no interactive element has focus,
-      // to avoid conflicting with form inputs, textareas, etc.
-      const tag = document.activeElement?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (e.key === 'ArrowLeft')       this.goTo(this.#current - 1);
-      else if (e.key === 'ArrowRight') this.#next();
-    });
-
-    this.#startTimer();
-  }
-}
-
-/* ─────────────────────────────────────────────
-   SCROLL MANAGER
-───────────────────────────────────────────── */
-
-/**
- * Handles all scroll-driven behaviour:
- *  - Navbar glass effect
- *  - Hero parallax / fade-out
- *  - Reveal animations for sections entering the viewport
- */
-class ScrollManager {
-  /** @type {Element|null} */ #navbar;
-  /** @type {Element|null} */ #heroOverlay;
-  /** @type {Element|null} */ #heroContent;
-
-  constructor() {
-    this.#navbar      = qs(CONFIG.selectors.navbar);
-    this.#heroOverlay = qs(CONFIG.selectors.heroOverlay);
-    this.#heroContent = qs(CONFIG.selectors.heroContent);
-  }
-
-  /** Toggle the glass-effect class on the navbar. */
-  #updateNavbar() {
-    if (!this.#navbar) return;
-    this.#navbar.classList.toggle('scrolled', window.scrollY > CONFIG.scroll.navbarThreshold);
-  }
-
-  /**
-   * Apply parallax fade to the active hero slide, overlay, and content.
-   * @param {HTMLElement[]} slides - Array of slide elements
-   * @param {Element|null} heroEl  - Hero section element
-   */
-  #updateParallax(slides, heroEl) {
-    if (!heroEl) return;
-    const { parallaxFadeFraction, overlayFadeFactor, contentFadeFactor } = CONFIG.scroll;
-    const progress = Math.min(window.scrollY / (heroEl.offsetHeight * parallaxFadeFraction), 1);
-
-    slides.forEach((s) => {
-      s.style.opacity = s.classList.contains('active') ? String(1 - progress) : '0';
-    });
-
-    if (this.#heroOverlay) {
-      this.#heroOverlay.style.opacity = String(1 - progress * overlayFadeFactor);
-    }
-    if (this.#heroContent) {
-      this.#heroContent.style.opacity = String(Math.max(0, 1 - progress * contentFadeFactor));
-    }
-  }
-
-  /** Add the "visible" class to any tracked elements that have entered the viewport. */
-  checkVisible() {
-    const threshold = window.innerHeight * CONFIG.scroll.revealThreshold;
-
-    CONFIG.selectors.revealEls.forEach((selector) => {
-      try {
-        document.querySelectorAll(selector).forEach((el) => {
-          if (el.getBoundingClientRect().top < threshold) {
-            el.classList.add('visible');
-          }
-        });
-      } catch (err) {
-        console.warn(`[thf] Invalid reveal selector: ${selector}`, err);
-      }
-    });
-  }
-
-  /**
-   * Attach the (throttled) scroll listener and run an initial check.
-   * @param {Carousel} carousel - Carousel instance to read slides from
-   */
-  init(carousel) {
-    const heroEl = qs(CONFIG.selectors.hero);
-    const slides = carousel.getSlides();
-
-    const onScroll = throttle(() => {
-      this.#updateNavbar();
-      this.#updateParallax(slides, heroEl);
-      this.checkVisible();
-    }, CONFIG.scroll.throttleMs);
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // Run once on load so elements already in view animate immediately.
-    this.#updateNavbar();
-    this.#updateParallax(slides, heroEl);
-    this.checkVisible();
-  }
-}
-
-/* ─────────────────────────────────────────────
-   TOAST
-───────────────────────────────────────────── */
-
-/** Lightweight copy-feedback toast notification. */
-class Toast {
-  /** @type {Element|null} */                     #toastEl;
-  /** @type {number} */                           #displayMs;
-  /** @type {string} */                           #defaultMessage;
-  /** @type {ReturnType<typeof setTimeout>|null} */ #timer = null;
-
-  constructor() {
-    this.#displayMs      = CONFIG.toast.displayMs;
-    this.#defaultMessage = CONFIG.toast.defaultMessage;
-    this.#toastEl        = qs(CONFIG.selectors.copyToast);
-  }
-
-  /**
-   * Show the toast with the given message.
-   * @param {string} [message] - Text to display (defaults to CONFIG value)
-   */
-  show(message = this.#defaultMessage) {
-    if (!this.#toastEl) return;
-    this.#toastEl.textContent = message;
-    this.#toastEl.classList.add('show');
-    if (this.#timer !== null) clearTimeout(this.#timer);
-    this.#timer = setTimeout(() => this.#toastEl.classList.remove('show'), this.#displayMs);
-  }
-}
-
-/* ─────────────────────────────────────────────
-   STATUS CHECKER
-───────────────────────────────────────────── */
-
-/** Polls the Minecraft server status API and updates the UI. */
-class StatusChecker {
-  /** @type {string} */      #host;
-  /** @type {string} */      #apiUrl;
-  /** @type {number} */      #pollInterval;
-  /** @type {Element|null} */ #statusDot;
-  /** @type {Element|null} */ #playerText;
-
-  constructor() {
-    const { host, apiUrl, pollInterval } = CONFIG.status;
-    this.#host         = host;
-    this.#apiUrl       = apiUrl;
-    this.#pollInterval = pollInterval;
-    this.#statusDot    = qs(CONFIG.selectors.statusDot);
-    this.#playerText   = qs(CONFIG.selectors.playerText);
-  }
-
-  /**
-   * Format player count as a human-readable string.
-   * @param {number} n - Number of online players
-   * @returns {string}
-   */
-  #formatPlayerCount(n) {
-    return n === 1 ? '1 player online' : `${n} players online`;
-  }
-
-  /**
-   * Update the UI to reflect the given online/offline state.
-   * @param {boolean} online  - Whether the server is reachable
-   * @param {number}  [count] - Player count when online
-   */
-  #updateUI(online, count = 0) {
-    if (this.#statusDot) {
-      this.#statusDot.className = online ? 'status-dot' : 'status-dot offline';
-    }
-    if (this.#playerText) {
-      this.#playerText.textContent = online ? this.#formatPlayerCount(count) : 'Server offline';
-    }
-  }
-
-  /**
-   * Fetch current server status from the API and update the UI.
-   * @returns {Promise<void>}
-   */
-  async #fetch() {
-    try {
-      const response = await window.fetch(`${this.#apiUrl}${this.#host}`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      this.#updateUI(data.online === true, data.players?.online ?? 0);
-    } catch (err) {
-      console.warn('[thf] Could not reach status API:', err);
-      if (this.#statusDot)  this.#statusDot.className    = 'status-dot offline';
-      if (this.#playerText) this.#playerText.textContent = 'Could not reach server';
-    }
-  }
-
-  /** Run an initial status check and schedule periodic polling. */
-  init() {
-    this.#fetch();
-    setInterval(() => this.#fetch(), this.#pollInterval);
-  }
-}
-
-/* ─────────────────────────────────────────────
-   APP BOOTSTRAP
-───────────────────────────────────────────── */
-
-/**
- * Main application class — wires up all modules and handles
- * global event delegation (copy-to-clipboard).
- */
-class ThfApp {
-  /** @type {Carousel} */       #carousel;
-  /** @type {ScrollManager} */  #scrollManager;
-  /** @type {Toast} */          #toast;
-  /** @type {StatusChecker} */  #statusChecker;
-
-  constructor() {
-    this.#carousel      = new Carousel();
-    this.#scrollManager = new ScrollManager();
-    this.#toast         = new Toast();
-    this.#statusChecker = new StatusChecker();
-  }
-
-  /**
-   * Copy text to the clipboard and show a toast notification.
-   * @param {string} text    - Text to copy
-   * @param {string} [label] - Optional toast message
-   */
-  #copyText(text, label) {
-    navigator.clipboard.writeText(text).then(
-      () => this.#toast.show(label),
-      (err) => {
-        console.warn('[thf] Clipboard write failed:', err);
-        this.#toast.show('Copy failed — please try again');
-      },
-    );
-  }
-
-  /**
-   * Attach delegated click handler for all [data-copy-text] elements.
-   * Replaces the previous global copyText() function.
-   */
-  #bindCopyDelegation() {
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('[data-copy-text]');
-      if (!target) return;
-      const text  = target.dataset.copyText;
-      const label = target.dataset.copyLabel;
-      this.#copyText(text, label);
-    });
-  }
-
-  /** Initialise all modules. */
-  init() {
-    this.#carousel.init();
-    this.#scrollManager.init(this.#carousel);
-    this.#statusChecker.init();
-    this.#bindCopyDelegation();
-  }
-}
-
-/* ─────────────────────────────────────────────
-   BOOT
-───────────────────────────────────────────── */
-
-const app = new ThfApp();
-app.init();
-</script>
-</body>
-</html>
+Got everything I need. Here's the prompt:
+
+---
+
+**PROMPT:**
+
+You are building a single `index.html` file for a Minecraft server website called **THFproject**. The file must be fully self-contained — all CSS and JavaScript inline, no external files except the ones explicitly listed. It deploys to a GitHub Pages repo that also contains `img/1.webp` through `img/6.webp` (server screenshots) and a `CNAME` file. Do not reference any other local files.
+
+---
+
+**DESIGN DIRECTION**
+
+Dark, minimal, modern. Take inspiration from two reference styles and blend them:
+- **DonutSMP-style**: dark card layouts (`#1e1e1e` / `#111111` backgrounds), bold weight typography, rounded cards with `border-bottom: 8px solid black`, clean section spacing, cards that feel "lifted"
+- **Current THF style**: full-viewport hero, scroll-into-view section flow, glassy/semi-transparent panels, smooth scroll behavior
+
+The overall palette is near-black backgrounds (`#0a0a0a`, `#111`, `#1a1a1a`), white text, with three brand accent colors used sparingly for the logo and highlights only:
+- T → `#e04918` (orange-red)
+- H → `#4ade80` (green)
+- F → `#38bdf8` (sky blue)
+
+Typography: use `Inter` from Google Fonts. Keep font weights bold (700–900) for headings, 500–600 for body.
+
+---
+
+**FAVICON**
+
+Embed this base64 favicon as the page icon:
+```
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA6ElEQVR4Xu2Qyw3CQBDF0gadUAcS7VAGolW4wGkPWElmE4Xvs6V38e5lPNzDGSjSMABFGgagSMMAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaLwlwOB+fthX7y61rSzAAxRzX0+5pUxjAAO8JsAUGoBiDh3NkqwA8eOl6MADFGDyYI1WA6r3Bg5auBwNQzFEd3qgOrN6nWHNghQEo5lgbgCPVe8MABjDAbwao6P1vAAMY4LMByFSQ3oMavf8NYAADfFeAf8AAFGkYgCINA1CkYQCKNAxAkYYBKNIwAEUaBqBIwwAUacQHeACu6DHUTws7PwAAAABJRU5ErkJggg==
+```
+
+---
+
+**PAGE META**
+
+- `<title>`: `thfProject — Void Minecraft Server`
+- meta description: `thfProject — A semi-anarchy void Minecraft server. No floor, random items every 30 seconds, Java & Bedrock cross-play.`
+
+---
+
+**LOGO RENDERING**
+
+The logo "THFproject" is always rendered as styled text — never an image. Use `<span>` tags per letter group:
+- `T` → `#e04918`
+- `H` → `#4ade80`
+- `F` → `#38bdf8`
+- `project` → `rgba(255,255,255,0.9)` (only shown in the hero, hidden or smaller in nav/footer)
+
+---
+
+**NAVIGATION**
+
+Sticky top navbar. Left: logo text. Right: nav links (`about`, `features`, `join`, `rules`) + a CTA button "Join Discord" linking to `https://discord.gg/N7SWAkUjSs`. Navbar background should blur/darken on scroll using a backdrop-filter or JS class toggle. Mobile: collapse nav links into a hamburger menu.
+
+---
+
+**SECTION 1 — HERO**
+
+Full viewport height. Background: use `img/1.webp` as a dark-overlaid background image (overlay at ~70% black opacity so text is readable). Center-aligned content:
+
+- Large logo text (THFproject with colored spans as above, including "project")
+- Tagline: `Semi-Anarchy · Void World · Cross-Play`
+- Live player count pulled from the API (see API section below) — show as e.g. `● 3 players online` with a green dot, or `● Offline` with a red dot. While fetching show `Checking server…`
+- A copy-to-clipboard join box with three rows:
+  - Java IP → `thfproject.xyz`
+  - Bedrock IP → `thfproject.xyz`
+  - Bedrock Port → `25566`
+  - Each row has a label, the value, and a copy icon. Clicking anywhere on the row copies it and briefly shows a `Copied!` toast notification.
+  - Below the rows: two small tags — `Java 1.21.1+` and `Bedrock`
+- Two buttons side by side: **Discord** (`https://discord.gg/N7SWAkUjSs`) and **YouTube** (`https://www.youtube.com/@THFPROJECT`)
+- A subtle animated scroll-down arrow at the bottom
+
+---
+
+**SECTION 2 — ABOUT (`#info`)**
+
+Eyebrow label: `What is thfProject`
+Heading: `A Void World`
+Body: `No ground. No rules. An infinite void stretches in every direction. Every 30 seconds a random item drops into your inventory — and vanilla structures spawn right in the void, so you can find End cities, Nether fortresses, strongholds and more floating in the dark.`
+
+Below the text, three stat cards in a row (DonutSMP card style — dark rounded card, bold number/value, subtle label):
+- World Type → `Infinite Void`
+- Item Drop → `Every 30s`
+- Structures → `Vanilla Floating`
+
+Use `img/2.webp` or `img/3.webp` as a decorative side image or section background accent (darkened).
+
+---
+
+**SECTION 3 — FEATURES (`#features`)**
+
+Eyebrow: `Core Features`
+Heading: `How It Works`
+
+Three cards in a row (responsive: stack on mobile). Each card is a dark rounded panel (`border-bottom: 8px solid black`, `border-radius: 16px`):
+
+1. **Infinite Void** — `No floor. No ceiling. No walls. An endless black expanse in every direction. Every block you stand on is one you placed — or found. Falling ends everything.`
+2. **Random Items** — `Every 30 seconds the void delivers a random item to your inventory. Diamond sword? Gravel? Lava bucket? You adapt to what fate sends.`
+3. **Vanilla Structures** — `It's a void world — but vanilla structures still spawn. Find End cities, Nether fortresses, strongholds, dungeons and more, all floating in the darkness with nothing beneath them.`
+
+---
+
+**SECTION 4 — IMAGE GALLERY**
+
+A simple horizontal scrolling strip or CSS grid of the server screenshots: `img/1.webp` through `img/6.webp`. Rounded corners, slight gap, no captions needed. On desktop show 3 across; on mobile scroll horizontally. This section has no heading — it sits between Features and Join as a visual break.
+
+---
+
+**SECTION 5 — JOIN (`#join`)**
+
+Eyebrow: `How to Join`
+Heading: `Connect Now`
+
+Two side-by-side cards (stack on mobile), DonutSMP card style:
+- **Java Edition** — IP: `thfproject.xyz` — Version: `1.21.1+`
+- **Bedrock Edition** — IP: `thfproject.xyz` — Port: `25566` — Platforms: Mobile · Console · PC
+
+Below both cards, a centered note: `Full cross-play enabled — Java & Bedrock together`
+
+Also include a Ko-fi donation button/link styled as a secondary outlined button: `Support on Ko-fi` → `https://ko-fi.com/zlopi_`
+
+---
+
+**SECTION 6 — RULES (`#rules-section`)**
+
+Eyebrow: `Server Rules`
+Heading: `Semi-Anarchy`
+
+Preamble paragraph: `THF runs on a single rule so play stays fair without becoming restrictive. Raid, grief, exploit bugs, use autoclickers, build, or destroy — nearly everything is on the table. The one line is client software that automates combat or bypasses server-side game mechanics. If the server cannot detect it and it hands you an edge in a fight, it is banned.`
+
+Two columns side by side (stack on mobile):
+
+**✅ Allowed:**
+- Bug and glitch exploitation, including item duplication methods
+- Autoclickers and keyboard macros for any in-game action
+- Griefing, raiding, and unrestricted PvP with no boundaries
+- Teaming, alliances, and betrayal — social dynamics are yours to manage
+- Performance and QoL mods — Sodium, OptiFine, Iris, Lithium, and equivalents
+- Any vanilla game mechanic used creatively or destructively
+
+**🚫 Banned:**
+- Kill aura and combat reach modifications — automated targeting or extended hitboxes
+- Fly hacks and speed hacks outside server-permitted flight
+- X-ray, ESP, or any client that reveals hidden terrain or player positions through walls
+- Any modification that manipulates server-side combat, movement, or game state in ways impossible through normal input
+
+Style each list as cards or styled rows — green left-border for Allowed, red left-border for Banned.
+
+---
+
+**FOOTER**
+
+Dark (`#0a0a0a`). Three parts:
+- Logo text (THFproject, colored spans, no "project" word)
+- Links: Discord (`https://discord.gg/N7SWAkUjSs`) | YouTube (`https://www.youtube.com/@THFPROJECT`) | Ko-fi (`https://ko-fi.com/zlopi_`)
+- Small text: `thfproject.xyz · Java & Bedrock · Semi-Anarchy Void`
+- Tiny disclaimer: `Not affiliated with Mojang or Microsoft`
+
+---
+
+**API — LIVE PLAYER COUNT**
+
+On page load and every 30 seconds, fetch:
+```
+GET https://api.mcstatus.io/v2/status/java/thfproject.xyz
+```
+From the JSON response:
+- `online` (boolean) → green dot if true, red dot if false
+- `players.online` (number) → display as `● {n} players online`
+- If fetch fails or `online` is false → show `● Offline`
+- While loading → `Checking server…`
+
+---
+
+**CLIPBOARD / TOAST**
+
+When any IP/port row is clicked, copy its value to clipboard using the Clipboard API (`navigator.clipboard.writeText`). Show a small toast notification (`Copied!`) that fades in and out over ~2 seconds. One toast at a time.
+
+---
+
+**SCROLL BEHAVIOR**
+
+- `scroll-behavior: smooth` on `html`
+- Sections fade/slide in on scroll using `IntersectionObserver` — simple opacity + translateY transition, no heavy libraries
+- Nav links smooth-scroll to their respective section anchors
+
+---
+
+**RESPONSIVE**
+
+- Mobile-first CSS with breakpoints at 768px and 1024px
+- Nav collapses to hamburger at <768px
+- Feature cards, join cards, and rules columns all stack to single column on mobile
+- Gallery scrolls horizontally on mobile
+- Hero copy box stacks vertically on mobile
+
+---
+
+**CONSTRAINTS**
+
+- Zero external JS libraries (no jQuery, no Bootstrap)
+- Google Fonts (`Inter`) via `<link>` in `<head>` is allowed
+- No external CSS frameworks
+- All JS must be vanilla ES6+
+- The output must be a single complete `index.html` — no separate `.css` or `.js` files
+- Do not add any placeholder content, TODO comments, or lorem ipsum — use only the exact copy provided above
+
+---
